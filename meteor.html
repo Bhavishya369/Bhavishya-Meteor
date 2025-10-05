@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Meteors — Shooting Stars</title>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="asteroid.css">
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <div id="cursorHalo" class="cursor-halo"></div>
+    <div id="cursorDot" class="cursor-dot"></div>
+
+    <main class="stage">
+        <section class="asteroid-section">
+            <div class="asteroid-container intro-fade" id="asteroidContainer" title="Click / hover to interact">
+                <div class="loading-indicator" id="loadingIndicator"></div>
+                <div class="asteroid-orbit"></div>
+                <div class="asteroid-info">Click to rotate • Hover to inspect</div>
+            </div>
+        </section>
+
+        <aside>
+            <div class="panel intro-fade" id="infoPanel">
+                <div class="panel-content">
+                    <h1>Meteors — Shooting Stars</h1>
+                    <div class="tabs">
+                        <button class="tab active" data-tab="tabOverview">Overview</button>
+                        <button class="tab" data-tab="tabTypes">Types</button>
+                        <button class="tab" data-tab="tabShowers">Meteor Showers</button>
+                        <button class="tab" data-tab="tabImpacts">Impacts</button>
+                        <button class="tab" data-tab="tabCollection">Collection</button>
+                    </div>
+
+                    <div class="tab-contents">
+                        <!-- OVERVIEW -->
+                        <div id="tabOverview" class="content-pane show">
+                            <p>Meteors, commonly known as shooting stars, are the streaks of light we see when meteoroids—small pieces of cosmic debris—burn up in Earth's atmosphere.</p>
+                            <ul class="facts">
+                                <li><strong>Meteoroid:</strong> A small rocky or metallic body in outer space, smaller than an asteroid.</li>
+                                <li><strong>Meteor:</strong> The light phenomenon when a meteoroid enters Earth's atmosphere and vaporizes.</li>
+                                <li><strong>Meteorite:</strong> A meteoroid that survives atmospheric passage and lands on Earth's surface.</li>
+                                <li><strong>Frequency:</strong> Millions of meteors occur in Earth's atmosphere daily.</li>
+                            </ul>
+                        </div>
+
+                        <!-- TYPES -->
+                        <div id="tabTypes" class="content-pane">
+                            <ul class="facts">
+                                <li><strong>Sporadic Meteors:</strong> Random meteors not associated with any specific meteor shower.</li>
+                                <li><strong>Fireballs:</strong> Exceptionally bright meteors, brighter than Venus in the night sky.</li>
+                                <li><strong>Bolides:</strong> Fireballs that explode in the atmosphere, sometimes with audible sonic booms.</li>
+                                <li><strong>Earthgrazers:</strong> Meteors that skim Earth's atmosphere at shallow angles, creating long, dramatic trails.</li>
+                            </ul>
+                        </div>
+
+                        <!-- METEOR SHOWERS -->
+                        <div id="tabShowers" class="content-pane">
+                            <ul class="facts">
+                                <li><strong>Origin:</strong> Most meteor showers come from comet debris trails.</li>
+                                <li><strong>Annual Showers:</strong> Perseids (August), Leonids (November), Geminids (December).</li>
+                                <li><strong>Radiant Point:</strong> The point in the sky from which meteors appear to originate.</li>
+                                <li><strong>Peak Rates:</strong> Some showers produce 50-100 meteors per hour at peak activity.</li>
+                            </ul>
+                        </div>
+
+                        <!-- IMPACTS -->
+                        <div id="tabImpacts" class="content-pane">
+                            <ul class="facts">
+                                <li><strong>Atmospheric Protection:</strong> Earth's atmosphere protects us from most meteoroids.</li>
+                                <li><strong>Large Impacts:</strong> Larger objects can survive atmospheric entry and create impact craters.</li>
+                                <li><strong>Notable Events:</strong> Tunguska (1908), Chelyabinsk (2013) meteor events.</li>
+                                <li><strong>Detection:</strong> NASA's Planetary Defense Coordination Office tracks potential impact threats.</li>
+                            </ul>
+                        </div>
+
+                        <!-- COLLECTION -->
+                        <div id="tabCollection" class="content-pane">
+                            <ul class="facts">
+                                <li><strong>Meteorite Hunting:</strong> Scientists and collectors search for meteorites in deserts and Antarctica.</li>
+                                <li><strong>Scientific Value:</strong> Meteorites provide information about early solar system formation.</li>
+                                <li><strong>Classification:</strong> Stony, iron, and stony-iron meteorites based on composition.</li>
+                                <li><strong>Famous Finds:</strong> Allende, Murchison, and Willamette meteorites.</li>
+                            </ul>
+                        </div>
+
+                        <!-- SOURCES -->
+                        <div class="nasa-sources">
+                            <strong>Sources (NASA):</strong><br>
+                            <a href="https://science.nasa.gov/solar-system/meteors-meteorites/" target="_blank">NASA — Meteors & Meteorites</a><br>
+                            <a href="https://science.nasa.gov/solar-system/meteors-meteorites/facts/" target="_blank">NASA — Meteor Facts</a><br>
+                            <a href="https://ssd.jpl.nasa.gov/tools/meteor_streams.html" target="_blank">NASA JPL — Meteor Showers</a><br>
+                            <a href="https://www.nasa.gov/planetarydefense" target="_blank">NASA — Planetary Defense</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ADDED: Navigation Button in Bottom Left -->
+        <div class="navigation-button-container intro-fade">
+            <button id="detectionButton" class="detection-button">
+                <span class="button-icon">🚀</span>
+                <span class="button-content">
+                    <span class="button-title">Asteroid Detection</span>
+                    <span class="button-subtitle">Advanced Monitoring System</span>
+                </span>
+                <span class="button-arrow">→</span>
+            </button>
+        </div>
+    </main>
+
+    <div id="toast"></div>
+
+    <!-- Audio elements for sound effects -->
+    <audio id="asteroidSound" src="intro meteors,asteroids, comets/asteroid model click.mp3" preload="auto"></audio>
+    <audio id="buttonSound" src="intro meteors,asteroids, comets/button3.mp3" preload="auto"></audio>
+    <audio id="casualSound" src="intro meteors,asteroids, comets/casual click.mp3" preload="auto"></audio>
+
+    <!-- Include your JS -->
+    <script src="asteroid.js"></script>
+    
+    <!-- Sound effect handling -->
+    <script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get audio elements
+            const asteroidSound = document.getElementById('asteroidSound');
+            const buttonSound = document.getElementById('buttonSound');
+            const casualSound = document.getElementById('casualSound');
+            
+            // Play asteroid model click sound when clicking on the asteroid container
+            const asteroidContainer = document.getElementById('asteroidContainer');
+            if (asteroidContainer) {
+                asteroidContainer.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent event from bubbling up
+                    asteroidSound.currentTime = 0; // Reset to start
+                    asteroidSound.play();
+                });
+            }
+            
+            // Play button sound when clicking on any tab button
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent event from bubbling up
+                    buttonSound.currentTime = 0; // Reset to start
+                    buttonSound.play();
+                });
+            });
+            
+            // Play casual click sound when clicking anywhere else on the document
+            document.addEventListener('click', function() {
+                // Only play if the click wasn't on a button or the asteroid container
+                // (we rely on event.stopPropagation() in the above handlers)
+                casualSound.currentTime = 0; // Reset to start
+                casualSound.play();
+            });
+
+            // ADDED: Navigation button handler for meteors page
+            const detectionButton = document.getElementById('detectionButton');
+            if (detectionButton) {
+                detectionButton.addEventListener('click', () => {
+                    // Enhanced click feedback with glass morphic effects
+                    const timeline = gsap.timeline();
+                    
+                    timeline.to(detectionButton, {
+                        scale: 0.95,
+                        duration: 0.1,
+                        ease: "power2.inOut",
+                        background: "linear-gradient(135deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.35) 50%, rgba(0, 0, 0, 0.45) 100%)",
+                        borderColor: "rgba(255, 255, 255, 0.4)"
+                    })
+                    .to(detectionButton, {
+                        scale: 1,
+                        duration: 0.3,
+                        ease: "elastic.out(1, 0.5)",
+                        background: "linear-gradient(135deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.15) 50%, rgba(0, 0, 0, 0.25) 100%)",
+                        borderColor: "rgba(255, 255, 255, 0.2)"
+                    });
+                    
+                    // Enhanced sound effect
+                    buttonSound.currentTime = 0;
+                    buttonSound.play();
+                    
+                    // Show loading toast
+                    const toast = document.getElementById('toast');
+                    if (toast) {
+                        toast.textContent = '🚀 Launching Asteroid Detection System...';
+                        toast.style.opacity = '1';
+                        toast.style.transform = 'translateY(0)';
+                        setTimeout(() => { 
+                            toast.style.opacity = '0'; 
+                            toast.style.transform = 'translateY(-8px)'; 
+                        }, 1800);
+                    }
+                    
+                    // Add a ripple effect
+                    const ripple = document.createElement('div');
+                    ripple.style.cssText = `
+                        position: absolute;
+                        top: 50%; left: 50%;
+                        width: 100px; height: 100px;
+                        background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+                        border-radius: 50%;
+                        transform: translate(-50%, -50%) scale(0);
+                        pointer-events: none;
+                        z-index: 1;
+                    `;
+                    detectionButton.appendChild(ripple);
+                    
+                    gsap.to(ripple, {
+                        scale: 3,
+                        opacity: 0,
+                        duration: 0.8,
+                        ease: "power2.out",
+                        onComplete: () => ripple.remove()
+                    });
+                    
+                    // Navigate after a short delay for better UX
+                    setTimeout(() => {
+                        window.location.href = 'Detection of asteroids 3.html';
+                    }, 1000);
+                });
+
+                // Enhanced hover effects for meteors page
+                detectionButton.addEventListener('mouseenter', () => {
+                    const cursorHalo = document.getElementById('cursorHalo');
+                    if (cursorHalo) {
+                        cursorHalo.style.transform = cursorHalo.style.transform.replace(/\s*scale\([^)]+\)/,'') + ' scale(1.45)';
+                        cursorHalo.style.opacity = '1';
+                    }
+                    
+                    // Subtle glow effect
+                    gsap.to(detectionButton, {
+                        boxShadow: "0 25px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.3)",
+                        duration: 0.3
+                    });
+                });
+
+                detectionButton.addEventListener('mouseleave', () => {
+                    const cursorHalo = document.getElementById('cursorHalo');
+                    if (cursorHalo) {
+                        cursorHalo.style.transform = cursorHalo.style.transform.replace(/\s*scale\([^)]+\)/,'');
+                    }
+                    
+                    // Reset glow
+                    gsap.to(detectionButton, {
+                        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.2)",
+                        duration: 0.3
+                    });
+                });
+
+                // Add parallax effect to button based on mouse movement
+                window.addEventListener('mousemove', (e) => {
+                    const buttonRect = detectionButton.getBoundingClientRect();
+                    const buttonCenterX = buttonRect.left + buttonRect.width / 2;
+                    const buttonCenterY = buttonRect.top + buttonRect.height / 2;
+                    
+                    const moveX = (e.clientX - buttonCenterX) * 0.02;
+                    const moveY = (e.clientY - buttonCenterY) * 0.02;
+                    
+                    gsap.to(detectionButton, {
+                        x: moveX,
+                        y: moveY,
+                        duration: 1.5,
+                        ease: "power2.out"
+                    });
+                });
+            }
+
+            // Tab functionality for meteors page
+            const tabs = document.querySelectorAll('.tab');
+            const panes = document.querySelectorAll('.content-pane');
+            
+            tabs.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.tab;
+                    tabs.forEach(t => t.classList.remove('active'));
+                    btn.classList.add('active');
+                    panes.forEach(p => {
+                        if(p.id === id){
+                            p.classList.add('show');
+                            gsap.fromTo(p, 
+                                {y:18, opacity:0}, 
+                                {duration:0.6, y:0, opacity:1, ease:'expo.out'}
+                            );
+                        } else {
+                            p.classList.remove('show');
+                            p.style.opacity = 0;
+                            p.style.transform = 'translateY(18px)';
+                        }
+                    });
+                    buttonSound.currentTime = 0;
+                    buttonSound.play();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

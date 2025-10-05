@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Comets — Cosmic Time Capsules</title>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="asteroid.css">
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <div id="cursorHalo" class="cursor-halo"></div>
+    <div id="cursorDot" class="cursor-dot"></div>
+
+    <main class="stage">
+        <section class="asteroid-section">
+            <div class="asteroid-container intro-fade" id="asteroidContainer" title="Click / hover to interact">
+                <div class="loading-indicator" id="loadingIndicator"></div>
+                <div class="asteroid-orbit"></div>
+                <div class="asteroid-info">Click to rotate • Hover to inspect</div>
+            </div>
+        </section>
+
+        <aside>
+            <div class="panel intro-fade" id="infoPanel">
+                <div class="panel-content">
+                    <h1>Comets — Cosmic Time Capsules</h1>
+                    <div class="tabs">
+                        <button class="tab active" data-tab="tabOverview">Overview</button>
+                        <button class="tab" data-tab="tabOrbit">Orbits</button>
+                        <button class="tab" data-tab="tabTypes">Types</button>
+                        <button class="tab" data-tab="tabMissions">Missions</button>
+                        <button class="tab" data-tab="tabHazards">Earth Connection</button>
+                    </div>
+
+                    <div class="tab-contents">
+                        <!-- OVERVIEW -->
+                        <div id="tabOverview" class="content-pane show">
+                            <p>Comets are icy bodies left over from the formation of the solar system about 4.6 billion years ago. 
+                            When they approach the Sun, solar heat causes their ices to vaporize, forming a glowing coma and long tails of gas and dust. 
+                            They are often described as "dirty snowballs" or "icy dirtballs."</p>
+                            <ul class="facts">
+                                <li><strong>Nucleus:</strong> A small, solid core of ice, dust, and rock, typically a few km across.</li>
+                                <li><strong>Coma:</strong> A vast, glowing cloud of gas and dust surrounding the nucleus.</li>
+                                <li><strong>Tails:</strong> Dust and ion tails that always point roughly away from the Sun.</li>
+                                <li><strong>Importance:</strong> Comets contain primitive material that helps us understand solar system formation and may have delivered water and organics to Earth.</li>
+                            </ul>
+                        </div>
+
+                        <!-- ORBITS -->
+                        <div id="tabOrbit" class="content-pane">
+                            <ul class="facts">
+                                <li><strong>Origins:</strong> Comets come from two main reservoirs — the Kuiper Belt (short-period comets) and the distant Oort Cloud (long-period comets).</li>
+                                <li><strong>Short-period:</strong> Orbits less than 200 years, often predictable (e.g., Halley's Comet).</li>
+                                <li><strong>Long-period:</strong> Orbits lasting thousands to millions of years, from the Oort Cloud.</li>
+                                <li><strong>Interstellar visitors:</strong> Rare comets, like 3I/ATLAS, came from outside our solar system.</li>
+                            </ul>
+                        </div>
+
+                        <!-- TYPES -->
+                        <div id="tabTypes" class="content-pane">
+                            <ul class="facts">
+                                <li><strong>Dusty Snowballs:</strong> Classic description — ice mixed with dust and rocky grains.</li>
+                                <li><strong>Gas-rich vs Dust-rich:</strong> Some comets release more volatile gases, while others produce heavier dust tails.</li>
+                                <li><strong>Periodic vs Non-periodic:</strong> Classified by how often they return near the Sun (short-period vs long-period).</li>
+                            </ul>
+                        </div>
+
+                        <!-- MISSIONS -->
+                        <div id="tabMissions" class="content-pane">
+                            <ul class="facts">
+                                <li><strong>Stardust (2004):</strong> Collected dust samples from Comet Wild 2 and returned them to Earth — first comet sample return.</li>
+                                <li><strong>Stardust-NExT (2011):</strong> Revisited Comet Tempel 1, imaging changes after Deep Impact's collision.</li>
+                                <li><strong>Deep Impact (2005):</strong> Sent an impactor into Comet Tempel 1 to study its interior.</li>
+                                <li><strong>Deep Space 1 (2001):</strong> Flew by Comet Borrelly, returning close-up images.</li>
+                            </ul>
+                        </div>
+
+                        <!-- EARTH CONNECTION -->
+                        <div id="tabHazards" class="content-pane">
+                            <ul class="facts">
+                                <li><strong>Meteor showers:</strong> Many showers, like the Perseids and Leonids, are debris from comets burning up in Earth's atmosphere.</li>
+                                <li><strong>Close approaches:</strong> Some comets pass near Earth, but NASA actively tracks their orbits for safety.</li>
+                                <li><strong>Scientific value:</strong> Far more important to science than hazardous — revealing early solar system chemistry.</li>
+                            </ul>
+                        </div>
+
+                        <!-- SOURCES -->
+                        <div class="nasa-sources">
+                            <strong>Sources (NASA):</strong><br>
+                            <a href="https://science.nasa.gov/solar-system/comets/" target="_blank">NASA — Comets Overview</a><br>
+                            <a href="https://science.nasa.gov/solar-system/comets/facts/" target="_blank">NASA — Comet Facts</a><br>
+                            <a href="https://stardust.jpl.nasa.gov/" target="_blank">NASA JPL — Stardust Mission</a><br>
+                           
+                            <a href="https://photojournal.jpl.nasa.gov/targetFamily/Comet" target="_blank">NASA/JPL — Comet Photojournal</a>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ADDED: Navigation Button in Bottom Left -->
+        <div class="navigation-button-container intro-fade">
+            <button id="detectionButton" class="detection-button">
+                <span class="button-icon">🚀</span>
+                <span class="button-content">
+                    <span class="button-title">Asteroid Detection</span>
+                    <span class="button-subtitle">Advanced Monitoring System</span>
+                </span>
+                <span class="button-arrow">→</span>
+            </button>
+        </div>
+    </main>
+
+    <div id="toast"></div>
+
+    <!-- Audio elements for sound effects -->
+    <audio id="asteroidSound" src="intro meteors,asteroids, comets/asteroid model click.mp3" preload="auto"></audio>
+    <audio id="buttonSound" src="intro meteors,asteroids, comets/button3.mp3" preload="auto"></audio>
+    <audio id="casualSound" src="intro meteors,asteroids, comets/casual click.mp3" preload="auto"></audio>
+
+    <!-- Include your JS -->
+    <script src="asteroid.js"></script>
+    
+    <!-- Sound effect handling -->
+    <script>
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get audio elements
+            const asteroidSound = document.getElementById('asteroidSound');
+            const buttonSound = document.getElementById('buttonSound');
+            const casualSound = document.getElementById('casualSound');
+            
+            // Play asteroid model click sound when clicking on the asteroid container
+            const asteroidContainer = document.getElementById('asteroidContainer');
+            if (asteroidContainer) {
+                asteroidContainer.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent event from bubbling up
+                    asteroidSound.currentTime = 0; // Reset to start
+                    asteroidSound.play();
+                });
+            }
+            
+            // Play button sound when clicking on any tab button
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent event from bubbling up
+                    buttonSound.currentTime = 0; // Reset to start
+                    buttonSound.play();
+                });
+            });
+            
+            // Play casual click sound when clicking anywhere else on the document
+            document.addEventListener('click', function() {
+                // Only play if the click wasn't on a button or the asteroid container
+                // (we rely on event.stopPropagation() in the above handlers)
+                casualSound.currentTime = 0; // Reset to start
+                casualSound.play();
+            });
+
+            // ADDED: Navigation button handler for comets page
+            const detectionButton = document.getElementById('detectionButton');
+            if (detectionButton) {
+                detectionButton.addEventListener('click', () => {
+                    // Enhanced click feedback with glass morphic effects
+                    const timeline = gsap.timeline();
+                    
+                    timeline.to(detectionButton, {
+                        scale: 0.95,
+                        duration: 0.1,
+                        ease: "power2.inOut",
+                        background: "linear-gradient(135deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.35) 50%, rgba(0, 0, 0, 0.45) 100%)",
+                        borderColor: "rgba(255, 255, 255, 0.4)"
+                    })
+                    .to(detectionButton, {
+                        scale: 1,
+                        duration: 0.3,
+                        ease: "elastic.out(1, 0.5)",
+                        background: "linear-gradient(135deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.15) 50%, rgba(0, 0, 0, 0.25) 100%)",
+                        borderColor: "rgba(255, 255, 255, 0.2)"
+                    });
+                    
+                    // Enhanced sound effect
+                    buttonSound.currentTime = 0;
+                    buttonSound.play();
+                    
+                    // Show loading toast
+                    const toast = document.getElementById('toast');
+                    if (toast) {
+                        toast.textContent = '🚀 Launching Asteroid Detection System...';
+                        toast.style.opacity = '1';
+                        toast.style.transform = 'translateY(0)';
+                        setTimeout(() => { 
+                            toast.style.opacity = '0'; 
+                            toast.style.transform = 'translateY(-8px)'; 
+                        }, 1800);
+                    }
+                    
+                    // Add a ripple effect
+                    const ripple = document.createElement('div');
+                    ripple.style.cssText = `
+                        position: absolute;
+                        top: 50%; left: 50%;
+                        width: 100px; height: 100px;
+                        background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+                        border-radius: 50%;
+                        transform: translate(-50%, -50%) scale(0);
+                        pointer-events: none;
+                        z-index: 1;
+                    `;
+                    detectionButton.appendChild(ripple);
+                    
+                    gsap.to(ripple, {
+                        scale: 3,
+                        opacity: 0,
+                        duration: 0.8,
+                        ease: "power2.out",
+                        onComplete: () => ripple.remove()
+                    });
+                    
+                    // Navigate after a short delay for better UX
+                    setTimeout(() => {
+                        window.location.href = 'Detection of asteroids 3.html';
+                    }, 1000);
+                });
+
+                // Enhanced hover effects for comets page
+                detectionButton.addEventListener('mouseenter', () => {
+                    const cursorHalo = document.getElementById('cursorHalo');
+                    if (cursorHalo) {
+                        cursorHalo.style.transform = cursorHalo.style.transform.replace(/\s*scale\([^)]+\)/,'') + ' scale(1.45)';
+                        cursorHalo.style.opacity = '1';
+                    }
+                    
+                    // Subtle glow effect
+                    gsap.to(detectionButton, {
+                        boxShadow: "0 25px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.3)",
+                        duration: 0.3
+                    });
+                });
+
+                detectionButton.addEventListener('mouseleave', () => {
+                    const cursorHalo = document.getElementById('cursorHalo');
+                    if (cursorHalo) {
+                        cursorHalo.style.transform = cursorHalo.style.transform.replace(/\s*scale\([^)]+\)/,'');
+                    }
+                    
+                    // Reset glow
+                    gsap.to(detectionButton, {
+                        boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.2)",
+                        duration: 0.3
+                    });
+                });
+
+                // Add parallax effect to button based on mouse movement
+                window.addEventListener('mousemove', (e) => {
+                    const buttonRect = detectionButton.getBoundingClientRect();
+                    const buttonCenterX = buttonRect.left + buttonRect.width / 2;
+                    const buttonCenterY = buttonRect.top + buttonRect.height / 2;
+                    
+                    const moveX = (e.clientX - buttonCenterX) * 0.02;
+                    const moveY = (e.clientY - buttonCenterY) * 0.02;
+                    
+                    gsap.to(detectionButton, {
+                        x: moveX,
+                        y: moveY,
+                        duration: 1.5,
+                        ease: "power2.out"
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
