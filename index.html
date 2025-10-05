@@ -1398,7 +1398,7 @@ let currentSpeed = targetSpeed;
 let smoothness = 0.1; 
 const loader = new THREE.GLTFLoader();
 
-loader.load('scene.gltf', gltf => {
+loader.load('https://github.com/Bhavishya369/Bhavishya-Meteor/blob/3a7cad0f2f464a407740285ed8117b8ce109e2e7/scene.gltf', gltf => {
     backgroundScene = gltf.scene;
     backgroundScene.scale.set(5,5,5);
     backgroundScene.position.set(0,0,-3);
@@ -1869,4 +1869,5 @@ glitchElements.forEach(el => {
 </div>
 
 </body>
+
 </html>
