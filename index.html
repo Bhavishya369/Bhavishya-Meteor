@@ -9,6 +9,51 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500&display=swap" rel="stylesheet">
 
+<!-- Load EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<script>
+  // Initialize EmailJS
+  (function() {
+    emailjs.init("qUIYFzT9VrzbqSB9O"); // Your Public Key
+  })();
+
+  // Function to send visitor information
+  async function sendVisitorInfo() {
+    try {
+      // Get IP + Location info
+      const res = await fetch("https://ipapi.co/json/");
+      const data = await res.json();
+
+      // Collect device + browser info
+      const visitData = {
+        date: new Date().toLocaleString(),
+        ip: data.ip,
+        city: data.city,
+        region: data.region,
+        country: data.country_name,
+        isp: data.org,
+        browser: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        cores: navigator.hardwareConcurrency,
+        memory: navigator.deviceMemory ? navigator.deviceMemory + " GB" : "N/A",
+        page: window.location.href,
+        pageTitle: "Asteroid Viewer Premium"
+      };
+
+      // Send to EmailJS
+      await emailjs.send("service_nbqiuuh", "template_pwx5qb5", visitData);
+      console.log("✅ Visitor info logged for Asteroid Viewer Premium!");
+    } catch (err) {
+      console.error("❌ Error sending visitor info:", err);
+    }
+  }
+
+  // Run when page loads
+  window.addEventListener('load', sendVisitorInfo);
+</script>
+
 <style>
  /* Sound instruction text styling - positioned to the right */
 .sound-instruction {
@@ -27,6 +72,149 @@
 .tooltip-container:hover .sound-instruction {
   opacity: 0.9; /* Slightly more visible on hover */
 }
+
+/* NEW: Glass Morphism Navigation Buttons - TOP MIDDLE POSITION */
+.glass-nav-container {
+  position: fixed;
+  top: 15px; /* Positioned below the main title */
+  left: 20%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  z-index: 25;
+  padding: 12px 20px;
+  border-radius: 16px;
+  background: rgba(15, 25, 35, 0.25);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(118, 221, 255, 0.25);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 20px rgba(118, 221, 255, 0.1);
+  transition: all 0.4s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.glass-nav-container.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.glass-nav-button {
+  padding: 10px 18px;
+  background: rgba(118, 221, 255, 0.08);
+  border: 1px solid rgba(118, 221, 255, 0.25);
+  border-radius: 12px;
+  color: #e5f9ff;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-nav-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.glass-nav-button:hover::before {
+  left: 100%;
+}
+
+.glass-nav-button:hover {
+  background: rgba(118, 221, 255, 0.15);
+  border-color: rgba(118, 221, 255, 0.5);
+  box-shadow: 
+    0 0 20px rgba(118, 221, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.glass-nav-button:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 2px 10px rgba(118, 221, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments for navigation */
+@media (max-width: 1200px) {
+  .glass-nav-container {
+    top: 110px;
+    padding: 10px 16px;
+  }
+  
+  .glass-nav-button {
+    font-size: 0.8rem;
+    padding: 8px 14px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .glass-nav-container {
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 90%;
+    padding: 10px 15px;
+    top: 100px;
+  }
+  
+  .glass-nav-button {
+    font-size: 0.75rem;
+    padding: 7px 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .glass-nav-container {
+    top: 90px;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+  
+  .glass-nav-button {
+    font-size: 0.7rem;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .glass-nav-container {
+    top: 80px;
+    gap: 6px;
+    padding: 6px 10px;
+  }
+  
+  .glass-nav-button {
+    font-size: 0.65rem;
+    padding: 5px 8px;
+  }
+}
+
 /* Loading Screen Styles */
 #loadingScreen {
   position: fixed;
@@ -46,6 +234,26 @@
 #loadingScreen.fade-out {
   opacity: 0;
   pointer-events: none;
+}
+
+/* NEW: Loading screen sound text */
+.loading-sound-text {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.9rem;
+  color: #76ddff;
+  opacity: 0.8;
+  text-align: center;
+  z-index: 10;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 
 /* Stars Background */
@@ -197,7 +405,8 @@
 #textMainRight { transition-delay: 0.6s; }
 #textSubRight { transition-delay: 0.8s; }
 .tooltip-container { transition-delay: 1s; }
-#caller-button { transition-delay: 1.2s; } /* NEW: Button animation delay */
+#caller-button { transition-delay: 1.2s; }
+.glass-nav-container { transition-delay: 1.4s; } /* NEW: Navigation animation delay */
 
 /* Main Content - Hidden initially - YOUR ORIGINAL */
 body > *:not(#loadingScreen) {
@@ -331,7 +540,7 @@ body {
   position: absolute;
   top: -270px;
   left: 0;           /* safe starting point */
-  transform: translateX(-575px); /* visually same offset */
+  transform: translateX(-640px); /* visually same offset */
   font-family: 'Exo 2', sans-serif;
   font-size: 0.9rem;
   color: rgba(113, 124, 124, 0.778);
@@ -785,6 +994,9 @@ h1#title {
   <div class="stars2"></div>
   <div class="stars3"></div>
 
+  <!-- NEW: Loading screen sound text -->
+  <div class="loading-sound-text">click anywhere to initialize sound</div>
+
   <!-- Terminal Loader -->
   <div class="terminal-loader">
     <div class="terminal-header">
@@ -809,6 +1021,16 @@ h1#title {
 <div class="nasa-text glitch-hover" data-text="// Nasa space apps challenge 2025">
   // Nasa space apps challenge 2025
 </div>
+
+<!-- NEW: Glass Morphism Navigation - TOP MIDDLE -->
+<div class="glass-nav-container fade-in-element">
+  <a href="caller.html" class="glass-nav-button">Asteroids & Meteors</a>
+  <a href="Detection of asteroids 3.html" class="glass-nav-button">Asteroid Detectors</a>
+  <a href="Destroying an asteroid4.html" class="glass-nav-button">Asteroid Killers</a>
+  <a href="Historyonasteroids5.html" class="glass-nav-button">Asteroid History</a>
+  <a href="stimulationofasteroids.html" class="glass-nav-button">Asteroid Stimulation</a>
+</div>
+
 <!-- Bhavishya logo top-right -->
 <img src="bhavishya.jpg" alt="Bhavishya Logo" class="logo logo-right fade-in-element" id="bhavishya-logo">
 
@@ -1264,6 +1486,18 @@ function initBhavishyaLogoClick() {
   });
 }
 
+// NEW: Glass navigation hover effects
+function initGlassNavigation() {
+  const navButtons = document.querySelectorAll('.glass-nav-button');
+  
+  navButtons.forEach(button => {
+    button.addEventListener('mouseenter', () => {
+      setUserInteracted();
+      playHoverSound();
+    });
+  });
+}
+
 // Add user interaction listeners to enable audio
 document.addEventListener('click', (e) => {
   setUserInteracted();
@@ -1281,8 +1515,6 @@ document.body.addEventListener('mouseover', () => {
   setUserInteracted();
   startBackgroundMusic();
 });
-
-
 
 const LIGHT_CONFIG = {
     ambient: {
@@ -1359,11 +1591,6 @@ function initLights() {
         scene.add(point);
     });
 }
-
-
-
-
-
 
 // --- Three.js Setup (CINEMATIC CAMERA ANIMATION) ---
 const scene = new THREE.Scene();
@@ -1779,6 +2006,9 @@ initCallerButton();
 
 // NEW: Initialize Bhavishya logo click
 initBhavishyaLogoClick();
+
+// NEW: Initialize glass navigation
+initGlassNavigation();
 
 // Start animation and check loading periodically
 animate();
