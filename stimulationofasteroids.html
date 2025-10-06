@@ -1,0 +1,2567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bhavishya Asteroid Monitor - Planetary Defense Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rajdhani', sans-serif;
+        }
+       
+        body {
+            background: #0a0e17;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(28, 58, 112, 0.2) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(19, 103, 138, 0.2) 0%, transparent 20%);
+        }
+       
+        /* Premium Loading Screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0e17 0%, #0f1a2f 50%, #0a0e17 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            overflow: hidden;
+        }
+       
+        .loading-container {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+       
+        .loading-logo {
+            font-size: 4.5rem;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, #00f2fe, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(79, 172, 254, 0.7);
+            animation: logoGlow 3s infinite alternate, float 6s infinite ease-in-out;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 4px;
+            position: relative;
+        }
+       
+        .loading-logo::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(to right, transparent, #00f2fe, transparent);
+            border-radius: 50%;
+            filter: blur(1px);
+            animation: linePulse 2s infinite alternate;
+        }
+       
+        .loading-subtitle {
+            font-size: 1.4rem;
+            color: #8a8ac4;
+            margin-bottom: 40px;
+            letter-spacing: 3px;
+            animation: subtitleFade 4s infinite alternate;
+        }
+       
+        .loading-bar-container {
+            width: 500px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+       
+        .loading-bar-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shine 3s infinite linear;
+        }
+       
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+            border-radius: 10px;
+            transition: width 0.4s ease;
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+       
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: loadingShine 2s infinite;
+        }
+       
+        .loading-text {
+            font-size: 1.1rem;
+            color: #4facfe;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            font-family: 'Orbitron', sans-serif;
+        }
+       
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+       
+        .loading-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4facfe;
+            animation: dotPulse 1.5s infinite ease-in-out;
+        }
+       
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+       
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+       
+        .loading-dot:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+       
+        .loading-dot:nth-child(5) {
+            animation-delay: 0.8s;
+        }
+       
+        .loading-status {
+            font-size: 0.9rem;
+            color: #8a8ac4;
+            letter-spacing: 1px;
+            max-width: 600px;
+            line-height: 1.6;
+            animation: statusFade 5s infinite alternate;
+        }
+       
+        /* Loading Background Elements */
+        .loading-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+        }
+       
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.7;
+        }
+       
+        .nebula-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #4facfe, transparent);
+            top: -200px;
+            left: -200px;
+            animation: nebulaFloat 25s infinite linear;
+        }
+       
+        .nebula-2 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #00f2fe, transparent);
+            bottom: -300px;
+            right: -300px;
+            animation: nebulaFloat 30s infinite linear reverse;
+        }
+       
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(15px);
+            animation: orbFloat 20s infinite linear;
+        }
+       
+        .orb-1 {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, #4facfe, transparent);
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+       
+        .orb-2 {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #00f2fe, transparent);
+            top: 70%;
+            left: 80%;
+            animation-delay: 5s;
+            animation-duration: 25s;
+        }
+       
+        .orb-3 {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(79, 172, 254, 0.7), transparent);
+            top: 40%;
+            left: 85%;
+            animation-delay: 10s;
+            animation-duration: 30s;
+        }
+       
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00f2fe, transparent);
+            top: 0;
+            left: 0;
+            animation: scan 8s infinite linear;
+            box-shadow: 0 0 10px #00f2fe;
+        }
+       
+        .grid-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(79, 172, 254, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79, 172, 254, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s infinite linear;
+            opacity: 0.3;
+        }
+       
+        .pulse-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(79, 172, 254, 0.5);
+            animation: ringPulse 4s infinite ease-out;
+        }
+       
+        .ring-1 {
+            width: 100px;
+            height: 100px;
+            top: 50%;
+            left: 50%;
+            margin-top: -50px;
+            margin-left: -50px;
+            animation-delay: 0s;
+        }
+       
+        .ring-2 {
+            width: 200px;
+            height: 200px;
+            top: 50%;
+            left: 50%;
+            margin-top: -100px;
+            margin-left: -100px;
+            animation-delay: 1s;
+        }
+       
+        .ring-3 {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            left: 50%;
+            margin-top: -150px;
+            margin-left: -150px;
+            animation-delay: 2s;
+        }
+       
+        .binary-rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            opacity: 0.3;
+        }
+       
+        .binary-digit {
+            position: absolute;
+            color: #4facfe;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.2rem;
+            animation: binaryFall 10s infinite linear;
+            text-shadow: 0 0 5px #4facfe;
+        }
+       
+        /* Main Content */
+        #main-content {
+            display: none;
+            padding: 20px;
+            position: relative;
+        }
+       
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+            position: relative;
+        }
+       
+        .title {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(79, 172, 254, 0.7);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 3px;
+        }
+       
+        .subtitle {
+            font-size: 1.5rem;
+            color: #8a8ac4;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+       
+        .asteroid-info {
+            background: rgba(16, 18, 27, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            position: relative;
+            overflow: hidden;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+       
+        .asteroid-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+        }
+       
+        .asteroid-name {
+            font-size: 2rem;
+            color: #00f2fe;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.7);
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 10px;
+        }
+       
+        .asteroid-type {
+            font-size: 1.2rem;
+            color: #8a8ac4;
+            margin-bottom: 15px;
+        }
+       
+        .asteroid-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #c8c8e6;
+        }
+       
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+       
+        .stat {
+            background: rgba(16, 18, 27, 0.7);
+            padding: 15px 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+       
+        .stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+        }
+       
+        .stat-value {
+            font-size: 2rem;
+            color: #00f2fe;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.7);
+            font-family: 'Orbitron', sans-serif;
+        }
+       
+        .stat-label {
+            font-size: 1rem;
+            color: #8a8ac4;
+            margin-top: 5px;
+        }
+       
+        /* Timer Section */
+        .timer-section {
+            background: rgba(16, 18, 27, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 0 auto 40px;
+            max-width: 800px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+       
+        .timer-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(79, 172, 254, 0.1), transparent);
+            animation: shine 3s infinite linear;
+        }
+       
+        .timer-label {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #8a8ac4;
+            font-family: 'Orbitron', sans-serif;
+        }
+       
+        .time-note {
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            color: #ffa502;
+            font-style: italic;
+        }
+       
+        .timer {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+       
+        .timer-unit {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            min-width: 120px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+       
+        .timer-unit::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 242, 254, 0.2), transparent);
+            animation: shine 2s infinite linear;
+        }
+       
+        .timer-value {
+            font-size: 3.5rem;
+            color: #00f2fe;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.7);
+            font-family: 'Orbitron', sans-serif;
+            position: relative;
+            z-index: 1;
+        }
+       
+        .timer-label-small {
+            font-size: 1rem;
+            color: #8a8ac4;
+            margin-top: 10px;
+            position: relative;
+            z-index: 1;
+        }
+       
+        /* Monitoring Graph Section */
+        .monitoring-section {
+            background: rgba(16, 18, 27, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 0 auto 40px;
+            max-width: 1000px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+       
+        .monitoring-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(79, 172, 254, 0.1), transparent);
+            animation: shine 3s infinite linear;
+        }
+       
+        .monitoring-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+       
+        .monitoring-title {
+            font-size: 1.8rem;
+            color: #00f2fe;
+            font-family: 'Orbitron', sans-serif;
+        }
+       
+        .graph-controls {
+            display: flex;
+            gap: 10px;
+        }
+       
+        .graph-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            color: #00f2fe;
+            padding: 8px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+       
+        .graph-btn.active {
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+            color: #0a0e17;
+        }
+       
+        .graph-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+       
+        .graph-container {
+            position: relative;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+       
+        .graph-canvas {
+            width: 100%;
+            height: 100%;
+        }
+       
+        .graph-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+       
+        .graph-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(79, 172, 254, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79, 172, 254, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+        }
+       
+        .graph-data-point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00f2fe;
+            box-shadow: 0 0 10px #00f2fe;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+       
+        .graph-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+       
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #8a8ac4;
+        }
+       
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+       
+        /* Asteroid Animation */
+        .asteroid-container {
+            position: relative;
+            height: 300px;
+            margin: 40px auto;
+            max-width: 800px;
+            overflow: hidden;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+       
+        .space-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #0a0e17 0%, #000000 100%);
+        }
+       
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 5s infinite ease-in-out;
+        }
+       
+        .earth {
+            position: absolute;
+            bottom: 50px;
+            right: 50px;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle at 30px 30px, #1a5fb4, #0c2d5c);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(26, 95, 180, 0.8);
+            z-index: 2;
+            animation: rotate 20s infinite linear;
+        }
+       
+        .earth::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: transparent;
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(26, 95, 180, 0.6);
+            animation: pulse 3s infinite ease-in-out;
+            z-index: -1;
+        }
+       
+        .asteroid {
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 20px 20px, #8b4513, #5d2906);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(139, 69, 19, 0.7);
+            animation: fall 15s linear forwards, rotate 5s infinite linear;
+            z-index: 1;
+        }
+       
+        .asteroid-trail {
+            position: absolute;
+            top: -80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(ellipse at center, rgba(139, 69, 19, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: fall 15s linear forwards;
+            z-index: 0;
+            filter: blur(5px);
+        }
+       
+        /* Questions Section */
+        .questions-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+       
+        .question-card {
+            background: rgba(16, 18, 27, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+       
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+        }
+       
+        .question-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(0, 242, 254, 0.5);
+        }
+       
+        .question-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: #00f2fe;
+            text-shadow: 0 0 15px rgba(0, 242, 254, 0.7);
+        }
+       
+        .question-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+        }
+       
+        .question-description {
+            color: #8a8ac4;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+       
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+       
+        .option-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            color: #00f2fe;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+       
+        .option-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+       
+        .option-btn.correct {
+            background: linear-gradient(to right, #2ed573, #20bf6b);
+            color: #0a0e17;
+            border-color: #2ed573;
+        }
+       
+        .option-btn.incorrect {
+            background: linear-gradient(to right, #ff4757, #ff3838);
+            color: #0a0e17;
+            border-color: #ff4757;
+        }
+       
+        /* Back Button */
+        .back-button-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+       
+        .back-button {
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-family: 'Orbitron', sans-serif;
+        }
+       
+        .back-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.6);
+        }
+       
+        /* Chat Button */
+        .chat-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 242, 254, 0.7);
+            z-index: 100;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+       
+        .chat-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.9);
+        }
+       
+        .chat-button i {
+            font-size: 1.8rem;
+            color: white;
+        }
+       
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+       
+        /* Chat Modal */
+        .chat-modal {
+            position: fixed;
+            bottom: 110px;
+            right: 30px;
+            width: 380px;
+            height: 500px;
+            background: rgba(16, 18, 27, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            z-index: 101;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+       
+        .chat-header {
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+       
+        .ai-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+        }
+       
+        .chat-header-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+       
+        .chat-header-info p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+       
+        .close-chat {
+            margin-left: auto;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+       
+        .close-chat:hover {
+            opacity: 1;
+        }
+       
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+       
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            line-height: 1.4;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+       
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            border-bottom-right-radius: 5px;
+        }
+       
+        .ai-message {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom-left-radius: 5px;
+        }
+       
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+       
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+        }
+       
+        .chat-input input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+       
+        .send-button {
+            background: linear-gradient(135deg, #00f2fe, #4facfe);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+       
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+       
+        .send-button i {
+            color: white;
+            font-size: 1.2rem;
+        }
+       
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 18px;
+            border-radius: 18px;
+            border-bottom-left-radius: 5px;
+        }
+       
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+       
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            animation: typing 1.4s infinite ease-in-out;
+        }
+       
+        .typing-dots span:nth-child(1) { animation-delay: 0s; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+       
+        /* Game Elements */
+        .game-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(16, 18, 27, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            border: 2px solid #00f2fe;
+            z-index: 1000;
+            display: none;
+            max-width: 500px;
+            width: 90%;
+            backdrop-filter: blur(10px);
+        }
+       
+        .game-alert h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #00f2fe;
+            font-family: 'Orbitron', sans-serif;
+        }
+       
+        .game-alert p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+       
+        .game-alert button {
+            background: linear-gradient(to right, #00f2fe, #4facfe);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+            font-weight: bold;
+        }
+       
+        .game-alert button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.6);
+        }
+       
+        /* Sound Controls */
+        .sound-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+       
+        .sound-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(16, 18, 27, 0.7);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: #00f2fe;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            transition: all 0.3s ease;
+        }
+       
+        .sound-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.4);
+        }
+       
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 20px;
+            color: #8a8ac4;
+            font-size: 0.9rem;
+        }
+       
+        /* Animations */
+        @keyframes logoGlow {
+            0% {
+                text-shadow: 0 0 10px rgba(79, 172, 254, 0.5),
+                             0 0 20px rgba(79, 172, 254, 0.3),
+                             0 0 30px rgba(79, 172, 254, 0.1);
+            }
+            100% {
+                text-shadow: 0 0 20px rgba(79, 172, 254, 0.8),
+                             0 0 40px rgba(79, 172, 254, 0.5),
+                             0 0 60px rgba(79, 172, 254, 0.3);
+            }
+        }
+       
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+       
+        @keyframes linePulse {
+            0% {
+                opacity: 0.3;
+                width: 80%;
+            }
+            100% {
+                opacity: 1;
+                width: 90%;
+            }
+        }
+       
+        @keyframes subtitleFade {
+            0% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+       
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+       
+        @keyframes loadingShine {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+       
+        @keyframes dotPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+       
+        @keyframes statusFade {
+            0% {
+                opacity: 0.7;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+       
+        @keyframes nebulaFloat {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            100% {
+                transform: translate(100px, 50px) rotate(360deg);
+            }
+        }
+       
+        @keyframes orbFloat {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(100px, 50px) rotate(90deg);
+            }
+            50% {
+                transform: translate(50px, 100px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-50px, 50px) rotate(270deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+       
+        @keyframes scan {
+            0% {
+                top: 0%;
+            }
+            100% {
+                top: 100%;
+            }
+        }
+       
+        @keyframes gridMove {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 50px 50px;
+            }
+        }
+       
+        @keyframes ringPulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+       
+        @keyframes binaryFall {
+            0% {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+       
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+       
+        @keyframes fall {
+            0% { top: -80px; transform: translateX(-50%) rotate(0deg); }
+            100% { top: 220px; transform: translateX(-50%) rotate(360deg); }
+        }
+       
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+       
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+       
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+       
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+       
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .loading-logo {
+                font-size: 2.5rem;
+                letter-spacing: 2px;
+            }
+           
+            .loading-bar-container {
+                width: 300px;
+            }
+           
+            .loading-status {
+                max-width: 350px;
+                font-size: 0.8rem;
+            }
+           
+            .title {
+                font-size: 2.5rem;
+            }
+           
+            .timer-unit {
+                min-width: 80px;
+                padding: 15px;
+            }
+           
+            .timer-value {
+                font-size: 2.5rem;
+            }
+           
+            .questions-section {
+                grid-template-columns: 1fr;
+            }
+           
+            .chat-modal {
+                width: 90%;
+                right: 5%;
+                height: 60%;
+            }
+           
+            .game-stats {
+                flex-wrap: wrap;
+            }
+           
+            .monitoring-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+           
+            .graph-controls {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+           
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Premium Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-bg">
+            <div class="nebula nebula-1"></div>
+            <div class="nebula nebula-2"></div>
+            <div class="floating-orb orb-1"></div>
+            <div class="floating-orb orb-2"></div>
+            <div class="floating-orb orb-3"></div>
+            <div class="scan-line"></div>
+            <div class="grid-lines"></div>
+            <div class="pulse-ring ring-1"></div>
+            <div class="pulse-ring ring-2"></div>
+            <div class="pulse-ring ring-3"></div>
+            <div class="binary-rain" id="binary-rain"></div>
+        </div>
+       
+        <div class="loading-container">
+            <div class="loading-logo">BHAVISHYA ASTEROID MONITOR</div>
+            <div class="loading-subtitle">INITIALIZING PLANETARY DEFENSE SYSTEMS</div>
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="loading-bar"></div>
+            </div>
+            <div class="loading-text" id="loading-text">LOADING DEFENSE PROTOCOLS: 0%</div>
+           
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
+           
+            <div class="loading-status" id="loading-status">Calibrating orbital sensors...</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <!-- Sound Controls -->
+        <div class="sound-controls">
+            <div class="sound-btn" id="music-toggle">
+                <i class="fas fa-volume-up"></i>
+            </div>
+            <div class="sound-btn" id="sfx-toggle">
+                <i class="fas fa-bell"></i>
+            </div>
+        </div>
+
+        <header class="header">
+            <h1 class="title">BHAVISHYA ASTEROID MONITOR</h1>
+            <p class="subtitle">PLANETARY DEFENSE GAME</p>
+           
+            <div class="asteroid-info" id="asteroid-info">
+                <div class="asteroid-name" id="asteroid-name">Loading...</div>
+                <div class="asteroid-type" id="asteroid-type"></div>
+                <div class="asteroid-description" id="asteroid-description"></div>
+            </div>
+           
+            <div class="game-stats">
+                <div class="stat">
+                    <div class="stat-value" id="population">7.9B</div>
+                    <div class="stat-label">EARTH POPULATION</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="resources">85%</div>
+                    <div class="stat-label">DEFENSE RESOURCES</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="success-chance">42%</div>
+                    <div class="stat-label">SURVIVAL CHANCE</div>
+                </div>
+            </div>
+        </header>
+
+        <section class="timer-section">
+            <div class="timer-label">IMPACT COUNTDOWN</div>
+            <div class="time-note">Note: 1 minute in real time = 1 day in the game simulation</div>
+            <div class="timer">
+                <div class="timer-unit">
+                    <div class="timer-value" id="days">00</div>
+                    <div class="timer-label-small">DAYS</div>
+                </div>
+                <div class="timer-unit">
+                    <div class="timer-value" id="hours">00</div>
+                    <div class="timer-label-small">HOURS</div>
+                </div>
+                <div class="timer-unit">
+                    <div class="timer-value" id="minutes">05</div>
+                    <div class="timer-label-small">MINUTES</div>
+                </div>
+                <div class="timer-unit">
+                    <div class="timer-value" id="seconds">00</div>
+                    <div class="timer-label-small">SECONDS</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Monitoring Graph Section -->
+        <section class="monitoring-section">
+            <div class="monitoring-header">
+                <h2 class="monitoring-title">REAL-TIME ASTEROID MONITORING</h2>
+                <div class="graph-controls">
+                    <button class="graph-btn active" data-graph="distance">DISTANCE</button>
+                    <button class="graph-btn" data-graph="velocity">VELOCITY</button>
+                    <button class="graph-btn" data-graph="size">SIZE</button>
+                    <button class="graph-btn" data-graph="threat">THREAT LEVEL</button>
+                </div>
+            </div>
+            <div class="graph-container">
+                <canvas class="graph-canvas" id="monitoring-graph"></canvas>
+                <div class="graph-overlay">
+                    <div class="graph-grid"></div>
+                </div>
+            </div>
+            <div class="graph-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #00f2fe;"></div>
+                    <span>DISTANCE (million km)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ff4757;"></div>
+                    <span>THREAT LEVEL</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #2ed573;"></div>
+                    <span>VELOCITY (km/s)</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="asteroid-container">
+            <div class="space-background" id="space-background"></div>
+            <div class="earth"></div>
+            <div class="asteroid-trail"></div>
+            <div class="asteroid"></div>
+        </div>
+
+        <section class="questions-section">
+            <div class="question-card" id="detection-question">
+                <div class="question-icon">
+                    <i class="fas fa-satellite"></i>
+                </div>
+                <h3 class="question-title">HOW TO DETECT ASTEROID</h3>
+                <p class="question-description">Choose the best method to detect and track the approaching asteroid.</p>
+                <div class="options-container" id="detection-options">
+                    <!-- Options will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="question-card" id="destruction-question">
+                <div class="question-icon">
+                    <i class="fas fa-bomb"></i>
+                </div>
+                <h3 class="question-title">HOW TO DESTROY ASTEROID</h3>
+                <p class="question-description">Select the most effective method to destroy or deflect the asteroid.</p>
+                <div class="options-container" id="destruction-options">
+                    <!-- Options will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="question-card" id="safety-question">
+                <div class="question-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="question-title">SAFER SPOTS ON IMPACT</h3>
+                <p class="question-description">Identify the safest locations if the asteroid hits Earth.</p>
+                <div class="options-container" id="safety-options">
+                    <!-- Options will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="question-card" id="quiz-question">
+                <div class="question-icon">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <h3 class="question-title">ASTEROID QUIZ</h3>
+                <p class="question-description">Test your knowledge about the specific asteroid approaching Earth.</p>
+                <div class="options-container" id="quiz-options">
+                    <!-- Options will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Back Button -->
+        <div class="back-button-container">
+            <button class="back-button" id="back-button">
+                <i class="fas fa-arrow-left"></i> BACK TO MAIN MENU
+            </button>
+        </div>
+
+        <!-- Chat Button -->
+        <div class="chat-button" id="chat-button">
+            <i class="fas fa-robot"></i>
+            <div class="notification-badge">1</div>
+        </div>
+
+        <!-- Chat Modal -->
+        <div class="chat-modal" id="chat-modal">
+            <div class="chat-header">
+                <div class="ai-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="chat-header-info">
+                    <h3>ARTHURITE AI</h3>
+                    <p>Planetary Defense Assistant</p>
+                </div>
+                <div class="close-chat" id="close-chat">
+                    <i class="fas fa-times"></i>
+                </div>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message ai-message">
+                    Hello Commander! I'm Arthurite, your planetary defense AI. The asteroid threat is critical. We need to act quickly to save humanity.
+                </div>
+            </div>
+            <div class="typing-indicator" id="typing-indicator">
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Type your message...">
+                <button class="send-button" id="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Game Alert -->
+        <div class="game-alert" id="game-alert">
+            <h2 id="alert-title">ALERT</h2>
+            <p id="alert-message">Asteroid impact detected! Earth's survival is at risk.</p>
+            <button id="alert-button">ACKNOWLEDGE</button>
+        </div>
+
+       
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="background-music" loop>
+        <source src="stimulation of asteroids/background music 23.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="loading-sound">
+        <source src="stimulation of asteroids/loading.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="button-sound">
+        <source src="stimulation of asteroids/button,stimulate.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="casual-click-sound">
+        <source src="stimulation of asteroids/casual click.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="chat-bot-sound">
+        <source src="stimulation of asteroids/chat bot.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="failure-sound">
+        <source src="stimulation of asteroids/failure.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="hover-sound">
+        <source src="stimulation of asteroids/hover on stimulation.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="individual-correct-sound">
+        <source src="stimulation of asteroids/individual correct answer.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="individual-wrong-sound">
+        <source src="stimulation of asteroids/individual wrong answer.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="time-tick-sound">
+        <source src="stimulation of asteroids/time tick tick for 4sec.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="victory-sound">
+        <source src="stimulation of asteroids/victory.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Asteroid data
+        const asteroids = [
+            {
+                name: "Mathilde",
+                type: "C-type (Carbonaceous)",
+                description: "Mathilde is a large, dark, carbon-rich asteroid discovered in 1885. It has an extremely slow rotation period of 17.4 days and is heavily cratered, with some craters larger than the asteroid's radius. It was visited by the NEAR Shoemaker spacecraft in 1997.",
+                diameter: "52.8 km",
+                composition: "Carbonaceous material, similar to carbonaceous chondrite meteorites",
+                orbit: "Main asteroid belt between Mars and Jupiter",
+                trivia: "Mathilde was the first C-type asteroid to be visited by a spacecraft."
+            },
+            {
+                name: "433 Eros",
+                type: "S-type (Silicate)",
+                description: "433 Eros is the first discovered near-Earth asteroid and the second-largest. It was discovered in 1898 and became the first asteroid to be orbited by a spacecraft (NEAR Shoemaker in 2000). Eros is an elongated object with dimensions of 34×11×11 km.",
+                diameter: "16.84 km",
+                composition: "Silicate minerals, nickel-iron",
+                orbit: "Near-Earth orbit, crosses Mars' path",
+                trivia: "Eros was the first asteroid to have a spacecraft land on it (NEAR Shoemaker in 2001)."
+            },
+            {
+                name: "16 Psyche",
+                type: "M-type (Metallic)",
+                description: "16 Psyche is one of the most massive asteroids in the asteroid belt, discovered in 1852. It is thought to be the exposed iron core of a protoplanet, making it a unique object for study. NASA plans to launch the Psyche spacecraft to study it in 2023.",
+                diameter: "226 km",
+                composition: "Mostly iron and nickel, similar to Earth's core",
+                orbit: "Main asteroid belt between Mars and Jupiter",
+                trivia: "Psyche is worth an estimated $10,000 quadrillion due to its metal content, though it's not economically feasible to mine."
+            }
+        ];
+
+        // Question data
+        const questions = {
+            detection: {
+                question: "What is the most effective method to detect and track the approaching asteroid?",
+                options: [
+                    { text: "Ground-based optical telescopes", correct: true, impact: 5 },
+                    { text: "Radio telescopes", correct: false, impact: -10 },
+                    { text: "Infrared space telescopes", correct: true, impact: 8 },
+                    { text: "Radar imaging", correct: true, impact: 7 }
+                ]
+            },
+            destruction: {
+                question: "What is the most effective method to destroy or deflect the asteroid?",
+                options: [
+                    { text: "Nuclear explosive device", correct: true, impact: 10 },
+                    { text: "Kinetic impactor", correct: true, impact: 8 },
+                    { text: "Gravity tractor", correct: false, impact: -15 },
+                    { text: "Laser ablation", correct: false, impact: -12 }
+                ]
+            },
+            safety: {
+                question: "Where are the safest locations if the asteroid hits Earth?",
+                options: [
+                    { text: "Underground bunkers", correct: true, impact: 5 },
+                    { text: "High-altitude mountains", correct: false, impact: -8 },
+                    { text: "Remote oceanic areas", correct: false, impact: -10 },
+                    { text: "Opposite side of impact", correct: true, impact: 7 }
+                ]
+            },
+            quiz: {
+                question: "Which statement is true about the approaching asteroid?",
+                options: [
+                    { text: "Option 1", correct: false, impact: -5 },
+                    { text: "Option 2", correct: false, impact: -5 },
+                    { text: "Option 3", correct: true, impact: 10 },
+                    { text: "Option 4", correct: false, impact: -5 }
+                ]
+            }
+        };
+
+        // Sound system
+        let audioEnabled = false;
+        
+        // Function to enable audio on first user interaction
+        function enableAudio() {
+            if (!audioEnabled) {
+                audioEnabled = true;
+                document.getElementById('loading-sound').volume = 0.5;
+                document.getElementById('loading-sound').play();
+            }
+        }
+        
+        // Add event listener for first user interaction
+        document.addEventListener('click', enableAudio, { once: true });
+        
+        // Play sound function
+        function playSound(soundName) {
+            if (!audioEnabled) return;
+            
+            const sound = document.getElementById(`${soundName}-sound`);
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play();
+            }
+        }
+
+        // Create binary rain effect
+        const binaryRain = document.getElementById('binary-rain');
+        const binaryChars = ['0', '1'];
+       
+        for (let i = 0; i < 50; i++) {
+            const digit = document.createElement('div');
+            digit.classList.add('binary-digit');
+            digit.textContent = binaryChars[Math.floor(Math.random() * binaryChars.length)];
+            digit.style.left = `${Math.random() * 100}%`;
+            digit.style.animationDelay = `${Math.random() * 10}s`;
+            digit.style.animationDuration = `${5 + Math.random() * 10}s`;
+            binaryRain.appendChild(digit);
+        }
+       
+        // Loading simulation
+        const loadingBar = document.getElementById('loading-bar');
+        const loadingText = document.getElementById('loading-text');
+        const loadingStatus = document.getElementById('loading-status');
+        let width = 0;
+       
+        const statusMessages = [
+            "Calibrating orbital sensors...",
+            "Initializing defense protocols...",
+            "Establishing global communication network...",
+            "Analyzing asteroid trajectory...",
+            "Deploying satellite surveillance...",
+            "Synchronizing global defense systems...",
+            "Preparing evacuation protocols...",
+            "Activating early warning systems...",
+            "Optimizing resource allocation...",
+            "Finalizing planetary defense strategy..."
+        ];
+       
+        let statusIndex = 0;
+       
+        const interval = setInterval(function() {
+            if (width >= 100) {
+                clearInterval(interval);
+               
+                // Final loading message
+                loadingStatus.textContent = "SYSTEMS READY - INITIATING DEFENSE SEQUENCE";
+               
+                // Add a final animation before transitioning
+                setTimeout(function() {
+                    document.getElementById('loading-screen').style.animation = 'fadeOut 1.5s forwards';
+                   
+                    setTimeout(function() {
+                        document.getElementById('loading-screen').style.display = 'none';
+                        document.getElementById('main-content').style.display = 'block';
+                        
+                        // Start background music after loading
+                        if (audioEnabled) {
+                            document.getElementById('loading-sound').pause();
+                            document.getElementById('background-music').volume = 0.3;
+                            document.getElementById('background-music').play();
+                        }
+                       
+                        // Initialize main page animations
+                        initMainPage();
+                    }, 1500);
+                }, 1000);
+            } else {
+                // Increment progress
+                width += Math.random() * 8;
+                if (width > 100) width = 100;
+                loadingBar.style.width = width + '%';
+                loadingText.textContent = `LOADING DEFENSE PROTOCOLS: ${Math.floor(width)}%`;
+               
+                // Update status message every 10%
+                if (Math.floor(width) % 10 === 0 && statusIndex < statusMessages.length) {
+                    loadingStatus.textContent = statusMessages[statusIndex];
+                    statusIndex++;
+                }
+            }
+        }, 300);
+       
+        // Add CSS for fadeOut animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+       
+        // Initialize main page
+        function initMainPage() {
+            // Select random asteroid
+            const selectedAsteroid = asteroids[Math.floor(Math.random() * asteroids.length)];
+            
+            // Display asteroid information
+            document.getElementById('asteroid-name').textContent = `Let's simulate ${selectedAsteroid.name}`;
+            document.getElementById('asteroid-type').textContent = `Type: ${selectedAsteroid.type}`;
+            document.getElementById('asteroid-description').textContent = selectedAsteroid.description;
+            
+            // Update quiz question based on selected asteroid
+            updateQuizQuestion(selectedAsteroid);
+            
+            // Create stars for space background
+            const spaceBackground = document.getElementById('space-background');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.width = `${Math.random() * 3}px`;
+                star.style.height = star.style.width;
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                spaceBackground.appendChild(star);
+            }
+
+            // Game State - Changed from 12 days to 5 minutes
+            const gameState = {
+                population: 7900000000,
+                resources: 85,
+                successChance: 42,
+                days: 0,        // Changed from 12 to 0
+                hours: 0,       // Changed from 18 to 0
+                minutes: 5,     // Changed from 45 to 5
+                seconds: 0,     // Changed from 30 to 0
+                selectedAsteroid: selectedAsteroid,
+                answeredQuestions: 0,
+                correctAnswers: 0,
+                musicEnabled: true,
+                sfxEnabled: true
+            };
+
+            // Populate question options
+            populateQuestionOptions(gameState.selectedAsteroid);
+
+            // Timer Countdown - Updated for 5 minutes countdown
+            let timeTickInterval;
+            function updateTimer() {
+                const daysElement = document.getElementById('days');
+                const hoursElement = document.getElementById('hours');
+                const minutesElement = document.getElementById('minutes');
+                const secondsElement = document.getElementById('seconds');
+               
+                gameState.seconds--;
+               
+                if (gameState.seconds < 0) {
+                    gameState.seconds = 59;
+                    gameState.minutes--;
+                   
+                    if (gameState.minutes < 0) {
+                        // Timer has ended - meteor impact!
+                        gameState.days = 0;
+                        gameState.hours = 0;
+                        gameState.minutes = 0;
+                        gameState.seconds = 0;
+                        document.querySelector('.timer-label').textContent = "IMPACT IMMINENT!";
+                        document.querySelector('.timer-label').style.color = "#ff4757";
+                        clearInterval(timerInterval);
+                        clearInterval(timeTickInterval);
+                        showGameAlert("IMPACT DETECTED", "The asteroid has struck Earth! Humanity's fate now depends on your strategy.", "ASSESS DAMAGE");
+                    }
+                }
+               
+                daysElement.textContent = gameState.days.toString().padStart(2, '0');
+                hoursElement.textContent = gameState.hours.toString().padStart(2, '0');
+                minutesElement.textContent = gameState.minutes.toString().padStart(2, '0');
+                secondsElement.textContent = gameState.seconds.toString().padStart(2, '0');
+            }
+           
+            const timerInterval = setInterval(updateTimer, 1000);
+            
+            // Start time tick sound
+            if (audioEnabled) {
+                document.getElementById('time-tick-sound').volume = 0.2;
+                document.getElementById('time-tick-sound').loop = true;
+                document.getElementById('time-tick-sound').play();
+            }
+           
+            // Update game stats
+            function updateStats() {
+                document.getElementById('population').textContent = formatNumber(gameState.population);
+                document.getElementById('resources').textContent = `${gameState.resources}%`;
+                document.getElementById('success-chance').textContent = `${gameState.successChance}%`;
+            }
+           
+            function formatNumber(num) {
+                if (num >= 1000000000) {
+                    return (num / 1000000000).toFixed(1) + 'B';
+                } else if (num >= 1000000) {
+                    return (num / 1000000).toFixed(1) + 'M';
+                } else if (num >= 1000) {
+                    return (num / 1000).toFixed(1) + 'K';
+                }
+                return num.toString();
+            }
+           
+            // Populate question options
+            function populateQuestionOptions(asteroid) {
+                // Detection question
+                const detectionOptions = document.getElementById('detection-options');
+                detectionOptions.innerHTML = '';
+                questions.detection.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.classList.add('option-btn');
+                    button.textContent = option.text;
+                    button.addEventListener('click', () => handleAnswer('detection', index, option, gameState));
+                    detectionOptions.appendChild(button);
+                });
+
+                // Destruction question
+                const destructionOptions = document.getElementById('destruction-options');
+                destructionOptions.innerHTML = '';
+                questions.destruction.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.classList.add('option-btn');
+                    button.textContent = option.text;
+                    button.addEventListener('click', () => handleAnswer('destruction', index, option, gameState));
+                    destructionOptions.appendChild(button);
+                });
+
+                // Safety question
+                const safetyOptions = document.getElementById('safety-options');
+                safetyOptions.innerHTML = '';
+                questions.safety.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.classList.add('option-btn');
+                    button.textContent = option.text;
+                    button.addEventListener('click', () => handleAnswer('safety', index, option, gameState));
+                    safetyOptions.appendChild(button);
+                });
+
+                // Quiz question
+                updateQuizQuestion(asteroid);
+            }
+
+            // Update quiz question based on asteroid
+            function updateQuizQuestion(asteroid) {
+                const quizOptions = document.getElementById('quiz-options');
+                quizOptions.innerHTML = '';
+                
+                // Create quiz options based on asteroid
+                const quizData = generateQuizOptions(asteroid);
+                
+                quizData.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.classList.add('option-btn');
+                    button.textContent = option.text;
+                    button.addEventListener('click', () => handleAnswer('quiz', index, option, gameState));
+                    quizOptions.appendChild(button);
+                });
+            }
+
+            // Generate quiz options based on asteroid
+            function generateQuizOptions(asteroid) {
+                let correctOption, incorrectOptions;
+                
+                switch(asteroid.name) {
+                    case "Mathilde":
+                        correctOption = "Mathilde was visited by the NEAR Shoemaker spacecraft in 1997.";
+                        incorrectOptions = [
+                            "Mathilde has a fast rotation period of just 4 hours.",
+                            "Mathilde is composed primarily of iron and nickel.",
+                            "Mathilde is the largest asteroid in the solar system."
+                        ];
+                        break;
+                    case "433 Eros":
+                        correctOption = "Eros was the first asteroid to be orbited by a spacecraft.";
+                        incorrectOptions = [
+                            "Eros is located in the Kuiper Belt.",
+                            "Eros is composed primarily of ice and frozen gases.",
+                            "Eros was discovered in the 21st century."
+                        ];
+                        break;
+                    case "16 Psyche":
+                        correctOption = "Psyche is thought to be the exposed iron core of a protoplanet.";
+                        incorrectOptions = [
+                            "Psyche is the smallest known asteroid.",
+                            "Psyche is composed primarily of water ice.",
+                            "Psyche has a moon orbiting it."
+                        ];
+                        break;
+                }
+                
+                const options = [
+                    { text: correctOption, correct: true, impact: 10 },
+                    { text: incorrectOptions[0], correct: false, impact: -5 },
+                    { text: incorrectOptions[1], correct: false, impact: -5 },
+                    { text: incorrectOptions[2], correct: false, impact: -5 }
+                ];
+                
+                // Shuffle options
+                for (let i = options.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [options[i], options[j]] = [options[j], options[i]];
+                }
+                
+                return { options };
+            }
+
+            // Handle answer selection
+            function handleAnswer(questionType, optionIndex, option, gameState) {
+                playSound('button');
+                
+                // Disable all options in this question
+                const optionsContainer = document.getElementById(`${questionType}-options`);
+                const optionButtons = optionsContainer.querySelectorAll('.option-btn');
+                optionButtons.forEach(btn => {
+                    btn.disabled = true;
+                    if (btn.textContent === option.text) {
+                        btn.classList.add(option.correct ? 'correct' : 'incorrect');
+                    }
+                });
+                
+                // Update game state
+                gameState.answeredQuestions++;
+                if (option.correct) {
+                    gameState.correctAnswers++;
+                    gameState.successChance += option.impact;
+                    playSound('individual-correct');
+                } else {
+                    gameState.successChance += option.impact;
+                    playSound('individual-wrong');
+                    if (option.impact <= -10) {
+                        // Critical wrong answer
+                        gameState.population = Math.floor(gameState.population * 0.7);
+                        playSound('failure');
+                        showGameAlert("CRITICAL ERROR", "Your decision has significantly increased the threat level! Population at risk.", "CONTINUE");
+                    }
+                }
+                
+                // Update stats
+                updateStats();
+                
+                // Check if all questions answered
+                if (gameState.answeredQuestions === 4) {
+                    setTimeout(() => {
+                        if (gameState.correctAnswers >= 3) {
+                            playSound('victory');
+                            showGameAlert("VICTORY!", `Congratulations! Your knowledge of ${gameState.selectedAsteroid.name} and planetary defense has saved Earth. ${Math.floor(gameState.population * 0.9).toLocaleString()} people survived.`, "PLAY AGAIN");
+                        } else if (gameState.successChance <= 0) {
+                            playSound('failure');
+                            showGameAlert("MISSION FAILED", `Your decisions led to catastrophic failure. The asteroid ${gameState.selectedAsteroid.name} has struck Earth, causing mass extinction.`, "TRY AGAIN");
+                        } else {
+                            showGameAlert("PARTIAL SUCCESS", `Your efforts mitigated some damage, but Earth suffered significant losses. ${Math.floor(gameState.population * 0.5).toLocaleString()} people survived.`, "PLAY AGAIN");
+                        }
+                    }, 1000);
+                }
+            }
+           
+            // Game Alert Function
+            function showGameAlert(title, message, buttonText) {
+                const alert = document.getElementById('game-alert');
+                const alertTitle = document.getElementById('alert-title');
+                const alertMessage = document.getElementById('alert-message');
+                const alertButton = document.getElementById('alert-button');
+               
+                alertTitle.textContent = title;
+                alertMessage.textContent = message;
+                alertButton.textContent = buttonText;
+               
+                alert.style.display = 'block';
+               
+                alertButton.onclick = function() {
+                    playSound('button');
+                    alert.style.display = 'none';
+                   
+                    // Reset game if it's a game over
+                    if (buttonText === "PLAY AGAIN" || buttonText === "TRY AGAIN") {
+                        location.reload();
+                    }
+                };
+            }
+
+            // Back button functionality
+            document.getElementById('back-button').addEventListener('click', function() {
+                playSound('button');
+                window.location.href = 'index.html';
+            });
+           
+            // Sound Controls
+            document.getElementById('music-toggle').addEventListener('click', function() {
+                playSound('button');
+                const music = document.getElementById('background-music');
+                const icon = this.querySelector('i');
+               
+                if (gameState.musicEnabled) {
+                    music.pause();
+                    icon.classList.remove('fa-volume-up');
+                    icon.classList.add('fa-volume-mute');
+                } else {
+                    music.play();
+                    icon.classList.remove('fa-volume-mute');
+                    icon.classList.add('fa-volume-up');
+                }
+               
+                gameState.musicEnabled = !gameState.musicEnabled;
+            });
+           
+            document.getElementById('sfx-toggle').addEventListener('click', function() {
+                playSound('button');
+                const icon = this.querySelector('i');
+               
+                if (gameState.sfxEnabled) {
+                    icon.classList.remove('fa-bell');
+                    icon.classList.add('fa-bell-slash');
+                } else {
+                    icon.classList.remove('fa-bell-slash');
+                    icon.classList.add('fa-bell');
+                }
+               
+                gameState.sfxEnabled = !gameState.sfxEnabled;
+            });
+           
+            // Add hover sounds to interactive elements
+            const interactiveElements = document.querySelectorAll('button, .question-card, .chat-button, .sound-btn, .graph-btn, .option-btn');
+            interactiveElements.forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    playSound('hover');
+                });
+            });
+           
+            // Chat Functionality
+            const chatButton = document.getElementById('chat-button');
+            const chatModal = document.getElementById('chat-modal');
+            const closeChat = document.getElementById('close-chat');
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-button');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const notificationBadge = document.querySelector('.notification-badge');
+
+            // Open chat modal
+            chatButton.addEventListener('click', function() {
+                playSound('chat-bot');
+                chatModal.style.display = 'flex';
+                notificationBadge.style.display = 'none';
+            });
+
+            // Close chat modal
+            closeChat.addEventListener('click', function() {
+                playSound('button');
+                chatModal.style.display = 'none';
+            });
+
+            // Send message function
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (message === '') return;
+
+                // Add user message
+                addMessage(message, 'user');
+                chatInput.value = '';
+
+                // Show typing indicator
+                typingIndicator.style.display = 'block';
+                scrollToBottom();
+
+                // Simulate AI response after a delay
+                setTimeout(function() {
+                    typingIndicator.style.display = 'none';
+                    const aiResponse = generateAIResponse(message, gameState.selectedAsteroid);
+                    addMessage(aiResponse, 'ai');
+                }, 1500);
+            }
+
+            // Add message to chat
+            function addMessage(text, sender) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                messageElement.classList.add(sender === 'user' ? 'user-message' : 'ai-message');
+                messageElement.textContent = text;
+                chatMessages.appendChild(messageElement);
+                scrollToBottom();
+            }
+
+            // Scroll to bottom of chat
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Generate AI response
+            function generateAIResponse(userMessage, asteroid) {
+                const lowerMessage = userMessage.toLowerCase();
+               
+                // Responses based on keywords in user message
+                if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+                    return `Greetings, Commander! We're tracking ${asteroid.name}, a ${asteroid.type} asteroid. The situation is critical. We need to make the right decisions to save humanity.`;
+                } else if (lowerMessage.includes('help') || lowerMessage.includes('what should i do')) {
+                    return `I recommend carefully considering all options for each question. ${asteroid.name} is a ${asteroid.type} asteroid, which affects how we should approach detection and deflection. Check the survival chance indicator before making your decision.`;
+                } else if (lowerMessage.includes('time') || lowerMessage.includes('countdown')) {
+                    return `Based on current trajectory, impact will occur in ${gameState.minutes} minutes, ${gameState.seconds} seconds. Time is of the essence! Remember: 1 minute = 1 day in this simulation.`;
+                } else if (lowerMessage.includes('detect') || lowerMessage.includes('track')) {
+                    return `For detecting ${asteroid.name}, we need to consider its composition. As a ${asteroid.type.split(' ')[0]}-type asteroid, it has specific reflective properties that affect which detection methods work best.`;
+                } else if (lowerMessage.includes('destroy') || lowerMessage.includes('deflect')) {
+                    return `The composition of ${asteroid.name} (${asteroid.type}) is crucial for determining the best deflection method. Some approaches work better on certain asteroid types than others.`;
+                } else if (lowerMessage.includes('safe') || lowerMessage.includes('shelter')) {
+                    return "In case of impact, safety depends on distance from the impact site, geological stability, and available resources. Underground bunkers and opposite hemispheres generally offer the best protection.";
+                } else if (lowerMessage.includes('population') || lowerMessage.includes('people')) {
+                    return `Current Earth population: ${formatNumber(gameState.population)}. Each decision will affect this number based on its effectiveness.`;
+                } else if (lowerMessage.includes('resource') || lowerMessage.includes('supplies')) {
+                    return `We have ${gameState.resources}% of defense resources remaining. Choose your answers carefully as resources are limited.`;
+                } else if (lowerMessage.includes('graph') || lowerMessage.includes('monitor')) {
+                    return "The monitoring graph shows real-time data about the asteroid's approach. You can toggle between different data sets to analyze the threat more effectively.";
+                } else if (lowerMessage.includes(asteroid.name.toLowerCase())) {
+                    return `${asteroid.name} is a ${asteroid.type} asteroid. ${asteroid.description}`;
+                } else {
+                    // Default responses if no keywords match
+                    const defaultResponses = [
+                        "I understand your concern. The asteroid threat requires immediate action. Which question are you working on?",
+                        "That's an important consideration. Let me access the planetary defense database for the latest information.",
+                        "Based on current data, I recommend focusing on accurate detection methods first, then appropriate deflection strategies.",
+                        "I'm designed to assist with asteroid threat scenarios. Could you provide more specific details about your query?",
+                        "The situation is critical but not hopeless. Humanity has faced existential threats before and prevailed through cooperation and technology."
+                    ];
+                    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+                }
+            }
+
+            // Event listeners for sending messages
+            sendButton.addEventListener('click', function() {
+                playSound('button');
+                sendMessage();
+            });
+           
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    playSound('button');
+                    sendMessage();
+                }
+            });
+
+            // Add casual click sound to document
+            document.addEventListener('click', function(e) {
+                // Only play casual click if the target is not a button or interactive element
+                if (!e.target.closest('button') && 
+                    !e.target.closest('.chat-button') && 
+                    !e.target.closest('.sound-btn') &&
+                    !e.target.closest('.question-card') &&
+                    !e.target.closest('.option-btn') &&
+                    !e.target.closest('.graph-btn')) {
+                    playSound('casual-click');
+                }
+            });
+
+            // Initial notification
+            setTimeout(function() {
+                notificationBadge.style.display = 'flex';
+            }, 5000);
+           
+            // Initialize stats
+            updateStats();
+
+            // Initialize Monitoring Graph
+            initMonitoringGraph();
+        }
+
+        // Monitoring Graph Functionality
+        function initMonitoringGraph() {
+            const canvas = document.getElementById('monitoring-graph');
+            const ctx = canvas.getContext('2d');
+            const graphControls = document.querySelectorAll('.graph-btn');
+            let currentGraph = 'distance';
+           
+            // Set canvas dimensions
+            function setCanvasSize() {
+                const container = canvas.parentElement;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+            }
+           
+            setCanvasSize();
+            window.addEventListener('resize', setCanvasSize);
+           
+            // Graph data simulation
+            const graphData = {
+                distance: [],
+                velocity: [],
+                size: [],
+                threat: []
+            };
+           
+            // Initialize data
+            for (let i = 0; i < 100; i++) {
+                const x = i;
+                const time = i * 0.12; // Simulate 12 days
+               
+                // Distance data (decreasing over time)
+                const distance = 12 - (time * 1.0) + (Math.random() * 0.5 - 0.25);
+                graphData.distance.push({ x, y: Math.max(0, distance) });
+               
+                // Velocity data (increasing over time)
+                const velocity = 25 + (time * 2) + (Math.random() * 5 - 2.5);
+                graphData.velocity.push({ x, y: velocity });
+               
+                // Size data (slight variations)
+                const size = 1.2 + (Math.random() * 0.2 - 0.1);
+                graphData.size.push({ x, y: size });
+               
+                // Threat level (increasing over time)
+                const threat = 10 + (time * 7.5) + (Math.random() * 10 - 5);
+                graphData.threat.push({ x, y: Math.min(100, threat) });
+            }
+           
+            // Graph colors
+            const colors = {
+                distance: '#00f2fe',
+                velocity: '#2ed573',
+                size: '#ffa502',
+                threat: '#ff4757'
+            };
+           
+            // Draw graph function
+            function drawGraph(type) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+               
+                const data = graphData[type];
+                if (!data || data.length === 0) return;
+               
+                const padding = 40;
+                const graphWidth = canvas.width - padding * 2;
+                const graphHeight = canvas.height - padding * 2;
+               
+                // Draw grid
+                ctx.strokeStyle = 'rgba(79, 172, 254, 0.2)';
+                ctx.lineWidth = 1;
+               
+                // Vertical grid lines
+                for (let i = 0; i <= 10; i++) {
+                    const x = padding + (i * graphWidth / 10);
+                    ctx.beginPath();
+                    ctx.moveTo(x, padding);
+                    ctx.lineTo(x, canvas.height - padding);
+                    ctx.stroke();
+                }
+               
+                // Horizontal grid lines
+                for (let i = 0; i <= 10; i++) {
+                    const y = padding + (i * graphHeight / 10);
+                    ctx.beginPath();
+                    ctx.moveTo(padding, y);
+                    ctx.lineTo(canvas.width - padding, y);
+                    ctx.stroke();
+                }
+               
+                // Find min and max values for scaling
+                let minY = Infinity;
+                let maxY = -Infinity;
+               
+                data.forEach(point => {
+                    if (point.y < minY) minY = point.y;
+                    if (point.y > maxY) maxY = point.y;
+                });
+               
+                // Add some padding to Y range
+                const yRange = maxY - minY;
+                minY -= yRange * 0.1;
+                maxY += yRange * 0.1;
+               
+                // Draw data line
+                ctx.beginPath();
+                ctx.strokeStyle = colors[type];
+                ctx.lineWidth = 3;
+                ctx.lineJoin = 'round';
+               
+                data.forEach((point, index) => {
+                    const x = padding + (point.x / (data.length - 1)) * graphWidth;
+                    const y = canvas.height - padding - ((point.y - minY) / (maxY - minY)) * graphHeight;
+                   
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+               
+                ctx.stroke();
+               
+                // Draw data points
+                ctx.fillStyle = colors[type];
+                data.forEach((point, index) => {
+                    if (index % 10 === 0) { // Draw every 10th point for performance
+                        const x = padding + (point.x / (data.length - 1)) * graphWidth;
+                        const y = canvas.height - padding - ((point.y - minY) / (maxY - minY)) * graphHeight;
+                       
+                        ctx.beginPath();
+                        ctx.arc(x, y, 4, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+               
+                // Draw axes labels
+                ctx.fillStyle = '#8a8ac4';
+                ctx.font = '12px Orbitron';
+                ctx.textAlign = 'center';
+               
+                // X-axis label
+                ctx.fillText('TIME (DAYS)', canvas.width / 2, canvas.height - 10);
+               
+                // Y-axis label
+                ctx.save();
+                ctx.translate(15, canvas.height / 2);
+                ctx.rotate(-Math.PI / 2);
+               
+                let yLabel = '';
+                switch(type) {
+                    case 'distance': yLabel = 'DISTANCE (MILLION KM)'; break;
+                    case 'velocity': yLabel = 'VELOCITY (KM/S)'; break;
+                    case 'size': yLabel = 'SIZE (KM)'; break;
+                    case 'threat': yLabel = 'THREAT LEVEL (%)'; break;
+                }
+               
+                ctx.fillText(yLabel, 0, 0);
+                ctx.restore();
+               
+                // Draw current value indicator
+                const lastPoint = data[data.length - 1];
+                const lastX = padding + (lastPoint.x / (data.length - 1)) * graphWidth;
+                const lastY = canvas.height - padding - ((lastPoint.y - minY) / (maxY - minY)) * graphHeight;
+               
+                // Draw pulsing circle at current point
+                ctx.beginPath();
+                ctx.arc(lastX, lastY, 8, 0, Math.PI * 2);
+                ctx.fillStyle = colors[type];
+                ctx.fill();
+               
+                ctx.beginPath();
+                ctx.arc(lastX, lastY, 12, 0, Math.PI * 2);
+                ctx.strokeStyle = colors[type];
+                ctx.lineWidth = 2;
+                ctx.stroke();
+               
+                // Draw current value text
+                ctx.fillStyle = '#fff';
+                ctx.font = '14px Orbitron';
+                ctx.textAlign = 'left';
+                ctx.fillText(`${lastPoint.y.toFixed(2)}`, lastX + 15, lastY - 5);
+            }
+           
+            // Graph control event listeners
+            graphControls.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    playSound('button');
+                   
+                    // Remove active class from all buttons
+                    graphControls.forEach(b => b.classList.remove('active'));
+                   
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                   
+                    // Update current graph
+                    currentGraph = this.dataset.graph;
+                   
+                    // Redraw graph
+                    drawGraph(currentGraph);
+                });
+            });
+           
+            // Initial graph draw
+            drawGraph(currentGraph);
+           
+            // Update graph data periodically
+            setInterval(() => {
+                // Remove first data point
+                Object.keys(graphData).forEach(key => {
+                    graphData[key].shift();
+                });
+               
+                // Add new data point
+                const lastX = graphData.distance[graphData.distance.length - 1].x + 1;
+                const time = lastX * 0.12;
+               
+                // Distance data
+                const distance = Math.max(0, 12 - (time * 1.0) + (Math.random() * 0.5 - 0.25));
+                graphData.distance.push({ x: lastX, y: distance });
+               
+                // Velocity data
+                const velocity = 25 + (time * 2) + (Math.random() * 5 - 2.5);
+                graphData.velocity.push({ x: lastX, y: velocity });
+               
+                // Size data
+                const size = 1.2 + (Math.random() * 0.2 - 0.1);
+                graphData.size.push({ x: lastX, y: size });
+               
+                // Threat level
+                const threat = 10 + (time * 7.5) + (Math.random() * 10 - 5);
+                graphData.threat.push({ x: lastX, y: Math.min(100, threat) });
+               
+                // Redraw current graph
+                drawGraph(currentGraph);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

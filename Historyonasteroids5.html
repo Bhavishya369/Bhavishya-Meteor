@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History on Asteroids</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: rgba(255, 255, 255, 0.08);
+            --secondary-color: rgba(255, 255, 255, 0.03);
+            --accent-color: rgba(116, 199, 255, 0.25);
+            --accent-glow: rgba(116, 199, 255, 0.4);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.75);
+            --border-color: rgba(255, 255, 255, 0.12);
+            --shadow-color: rgba(0, 0, 0, 0.25);
+            --gradient-start: #0a0a16;
+            --gradient-mid: #151532;
+            --gradient-end: #0a1524;
+            --section-spacing: 10rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Exo', sans-serif;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+            background-attachment: fixed;
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Enhanced Background Animation */
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .gradient-flow {
+            position: absolute;
+            width: 250%;
+            height: 250%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(116, 199, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255, 116, 232, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 40% 10%, rgba(116, 255, 173, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 60% 90%, rgba(255, 216, 116, 0.08) 0%, transparent 40%);
+            animation: gradientMove 25s ease-in-out infinite;
+            filter: blur(40px);
+        }
+
+        @keyframes gradientMove {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+            }
+            25% {
+                transform: translate(-3%, -3%) rotate(1deg) scale(1.05);
+            }
+            50% {
+                transform: translate(-6%, 3%) rotate(2deg) scale(1.03);
+            }
+            75% {
+                transform: translate(3%, 6%) rotate(-1deg) scale(1.07);
+            }
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px) rotate(180deg);
+                opacity: 0;
+            }
+        }
+
+        /* Header / Hero Section - Enhanced */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 100vh;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(116, 199, 255, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(3.5rem, 10vw, 8rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #ffffff, #a0d2ff, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 40px rgba(116, 199, 255, 0.4);
+            animation: titleGlow 4s ease-in-out infinite alternate;
+            position: relative;
+        }
+
+        @keyframes titleGlow {
+            0% {
+                text-shadow: 0 0 40px rgba(116, 199, 255, 0.4);
+            }
+            100% {
+                text-shadow: 0 0 60px rgba(116, 199, 255, 0.7), 0 0 80px rgba(116, 199, 255, 0.3);
+            }
+        }
+
+        .hero p {
+            font-size: clamp(1.3rem, 4vw, 2rem);
+            font-weight: 300;
+            max-width: 800px;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            position: relative;
+            animation: fadeInUp 1.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Enhanced Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            letter-spacing: 0.15em;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), transparent);
+            margin-top: 0.5rem;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+        }
+
+        /* Enhanced Glassmorphism / Liquid Effect */
+        .liquid {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-color);
+            border-radius: 2rem;
+            box-shadow: 
+                0 15px 35px 0 var(--shadow-color),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .liquid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.7s ease;
+        }
+
+        .liquid:hover::before {
+            left: 100%;
+        }
+
+        .liquid:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 25px 50px 0 var(--shadow-color),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Enhanced Event Sections */
+        .event-section {
+            display: flex;
+            margin-bottom: var(--section-spacing);
+            gap: 4rem;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .event-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .event-section:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .video-container {
+            flex: 1.2;
+            min-width: 0;
+        }
+
+        .video-card {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            border-radius: 1.5rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .video-card:hover {
+            transform: scale(1.03) translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 0 0 20px var(--accent-glow);
+        }
+
+        .thumbnail {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.5s ease;
+            filter: brightness(0.9);
+        }
+
+        .video-card:hover .thumbnail {
+            filter: brightness(1.1) contrast(1.1);
+            transform: scale(1.05);
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+            transition: all 0.4s ease;
+        }
+
+        .video-card:hover .play-overlay {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1));
+        }
+
+        .play-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .play-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .play-icon::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 22px solid rgba(0, 0, 0, 0.9);
+            border-top: 14px solid transparent;
+            border-bottom: 14px solid transparent;
+            margin-left: 7px;
+            z-index: 1;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .video-card:hover .play-icon {
+            transform: scale(1.15);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .video-card:hover .play-icon::before {
+            opacity: 1;
+        }
+
+        .video-card:hover .play-icon::after {
+            border-left-color: rgba(0, 0, 0, 1);
+        }
+
+        /* Enhanced Details Panel */
+        .detail-panel {
+            flex: 0.8;
+            padding: 3rem;
+            min-width: 0;
+            position: relative;
+        }
+
+        .detail-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(116, 199, 255, 0.05), transparent 30%);
+            border-radius: 2rem;
+            z-index: -1;
+        }
+
+        .detail-panel h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            letter-spacing: 0.08em;
+            position: relative;
+            display: inline-block;
+        }
+
+        .detail-panel h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(to right, var(--accent-color), transparent);
+            border-radius: 3px;
+        }
+
+        .detail-panel .date {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .detail-panel .date::before {
+            content: '📅';
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        .detail-panel .location {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+        }
+
+        .detail-panel .location::before {
+            content: '📍';
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        .detail-panel .description {
+            font-size: 1.3rem;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+            color: var(--text-secondary);
+        }
+
+        /* TNT Comparison Bar */
+        .tnt-comparison {
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .tnt-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.7rem;
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .tnt-value {
+            color: #FFD700;
+            font-weight: 500;
+        }
+
+        .tnt-bar-container {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .tnt-bar {
+            height: 100%;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #FF6B6B, #FFD166, #FFD700);
+            position: relative;
+            width: 0;
+            transition: width 1.5s ease-in-out;
+            box-shadow: 0 0 15px rgba(255, 209, 102, 0.4);
+        }
+
+        .tnt-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .tnt-marker {
+            position: absolute;
+            top: -5px;
+            width: 2px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.7);
+            transform: translateX(-50%);
+        }
+
+        .tnt-marker-label {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .tnt-nuclear {
+            left: 5%;
+        }
+
+        .tnt-modern {
+            left: 15%;
+        }
+
+        .tnt-all-nukes {
+            left: 65%;
+        }
+
+        .play-video-button {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            padding: 1rem 2.2rem;
+            border-radius: 3rem;
+            font-family: 'Exo', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            letter-spacing: 0.08em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .play-video-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.7s ease;
+        }
+
+        .play-video-button:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 0 0 15px var(--accent-glow);
+        }
+
+        .play-video-button:hover::before {
+            left: 100%;
+        }
+
+        .play-video-button:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .play-video-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* External link icon */
+        .external-icon {
+            font-size: 0.9em;
+            margin-left: 0.3rem;
+        }
+
+        /* Navigation Button Styles */
+        .navigation-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 6rem;
+            margin-bottom: 4rem;
+        }
+
+        .navigation-button {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            padding: 1.2rem 2.8rem;
+            border-radius: 3rem;
+            font-family: 'Exo', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            letter-spacing: 0.08em;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        .navigation-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.7s ease;
+        }
+
+        .navigation-button:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2), 0 0 15px var(--accent-glow);
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .navigation-button:hover::before {
+            left: 100%;
+        }
+
+        .navigation-button:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .navigation-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1100px) {
+            .event-section, .event-section:nth-child(even) {
+                flex-direction: column;
+                gap: 3rem;
+            }
+
+            .video-container, .detail-panel {
+                width: 100%;
+            }
+
+            .detail-panel {
+                margin-top: 0;
+            }
+
+            .container {
+                padding: 4rem 1.5rem;
+            }
+
+            :root {
+                --section-spacing: 7rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 1.5rem;
+            }
+
+            .detail-panel {
+                padding: 2rem;
+            }
+
+            .detail-panel h2 {
+                font-size: 2rem;
+            }
+
+            .play-icon {
+                width: 70px;
+                height: 70px;
+            }
+
+            .play-icon::after {
+                border-left: 18px solid rgba(0, 0, 0, 0.9);
+                border-top: 11px solid transparent;
+                border-bottom: 11px solid transparent;
+            }
+
+            .tnt-marker-label {
+                font-size: 0.7rem;
+            }
+
+            .navigation-button {
+                padding: 1rem 2.2rem;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .detail-panel {
+                padding: 1.5rem;
+            }
+
+            .detail-panel h2 {
+                font-size: 1.8rem;
+            }
+
+            .detail-panel .description {
+                font-size: 1.1rem;
+            }
+
+            .play-video-button {
+                padding: 0.9rem 1.8rem;
+                font-size: 1rem;
+            }
+
+            .tnt-marker-label {
+                font-size: 0.65rem;
+            }
+
+            .navigation-button {
+                padding: 0.9rem 1.8rem;
+                font-size: 1rem;
+            }
+        }
+
+        /* Enhanced Animation for detail panel elements */
+        .detail-element {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .event-section.visible .detail-element {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .event-section.visible .detail-element:nth-child(1) { transition-delay: 0.1s; }
+        .event-section.visible .detail-element:nth-child(2) { transition-delay: 0.2s; }
+        .event-section.visible .detail-element:nth-child(3) { transition-delay: 0.3s; }
+        .event-section.visible .detail-element:nth-child(4) { transition-delay: 0.4s; }
+        .event-section.visible .detail-element:nth-child(5) { transition-delay: 0.5s; }
+        .event-section.visible .detail-element:nth-child(6) { transition-delay: 0.6s; }
+
+        /* Focus states for accessibility */
+        .video-card:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.6);
+            outline-offset: 4px;
+        }
+
+        .play-video-button:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.6);
+            outline-offset: 2px;
+        }
+
+        /* Floating elements */
+        .floating-element {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(116, 199, 255, 0.2) 0%, transparent 70%);
+            filter: blur(10px);
+            animation: floatElement 15s infinite ease-in-out;
+            z-index: -1;
+        }
+
+        @keyframes floatElement {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(20px, -20px) rotate(5deg);
+            }
+            50% {
+                transform: translate(-15px, 15px) rotate(-5deg);
+            }
+            75% {
+                transform: translate(10px, 20px) rotate(3deg);
+            }
+        }
+
+        /* Section divider */
+        .section-divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Enhanced Background Animation -->
+    <div class="background-animation">
+        <div class="gradient-flow"></div>
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <!-- Floating Elements -->
+    <div class="floating-element" style="top: 20%; left: 10%; width: 150px; height: 150px; animation-delay: 0s;"></div>
+    <div class="floating-element" style="top: 60%; left: 85%; width: 120px; height: 120px; animation-delay: 2s;"></div>
+    <div class="floating-element" style="top: 80%; left: 15%; width: 80px; height: 80px; animation-delay: 4s;"></div>
+
+    <!-- Header / Hero Section -->
+    <header class="hero">
+        <h1>History on Asteroids</h1>
+        <p>Tracing cosmic impacts that shaped our world.</p>
+        <div class="scroll-indicator">
+            <span>EXPLORE THE COSMOS</span>
+            <div class="scroll-line"></div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Vredefort Crater Section -->
+        <section class="event-section" id="vredefort">
+            <div class="video-container">
+                <div class="video-card liquid" tabindex="0" data-youtube-url="https://youtu.be/0EmYa_4H1cE">
+                    <img src="https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80" alt="Vredefort Crater" class="thumbnail">
+                    <div class="play-overlay">
+                        <div class="play-icon" aria-hidden="true"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-panel liquid">
+                <h2 class="detail-element">Vredefort Crater</h2>
+                <p class="date detail-element">~2.02 billion years ago</p>
+                <p class="location detail-element">Free State, South Africa</p>
+                <p class="description detail-element">The largest and oldest verified impact crater on Earth, with an estimated diameter of 250-300 km. The asteroid was approximately 10-15 km in diameter and released energy equivalent to billions of atomic bombs, significantly altering Earth's geological and biological evolution.</p>
+                
+                <!-- TNT Comparison Bar -->
+                <div class="tnt-comparison detail-element">
+                    <div class="tnt-label">
+                        <span>ENERGY RELEASE</span>
+                        <span class="tnt-value">24 Million Megatons of TNT</span>
+                    </div>
+                    <div class="tnt-bar-container">
+                        <div class="tnt-bar" data-width="24"></div>
+                        <div class="tnt-marker tnt-nuclear">
+                            <div class="tnt-marker-label">Largest Nuclear Bomb</div>
+                        </div>
+                        <div class="tnt-marker tnt-modern">
+                            <div class="tnt-marker-label">Modern Nuke</div>
+                        </div>
+                        <div class="tnt-marker tnt-all-nukes">
+                            <div class="tnt-marker-label">All Nuclear Weapons</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="play-video-button detail-element" data-youtube-url="https://youtu.be/0EmYa_4H1cE">
+                    <span>Watch on YouTube ↗</span>
+                </button>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- Sudbury Basin Section -->
+        <section class="event-section" id="sudbury">
+            <div class="video-container">
+                <div class="video-card liquid" tabindex="0" data-youtube-url="https://youtu.be/qZmJNdlaAJo">
+                    <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1911&q=80" alt="Sudbury Basin" class="thumbnail">
+                    <div class="play-overlay">
+                        <div class="play-icon" aria-hidden="true"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-panel liquid">
+                <h2 class="detail-element">Sudbury Basin</h2>
+                <p class="date detail-element">~1.85 billion years ago</p>
+                <p class="location detail-element">Ontario, Canada</p>
+                <p class="description detail-element">One of the largest impact structures on Earth, originally 200-250 km in diameter. The impact created rich nickel and copper deposits that became one of the world's most important mining regions. The event significantly contributed to the formation of Earth's early crust.</p>
+                
+                <!-- TNT Comparison Bar -->
+                <div class="tnt-comparison detail-element">
+                    <div class="tnt-label">
+                        <span>ENERGY RELEASE</span>
+                        <span class="tnt-value">18 Million Megatons of TNT</span>
+                    </div>
+                    <div class="tnt-bar-container">
+                        <div class="tnt-bar" data-width="18"></div>
+                        <div class="tnt-marker tnt-nuclear">
+                            <div class="tnt-marker-label">Largest Nuclear Bomb</div>
+                        </div>
+                        <div class="tnt-marker tnt-modern">
+                            <div class="tnt-marker-label">Modern Nuke</div>
+                        </div>
+                        <div class="tnt-marker tnt-all-nukes">
+                            <div class="tnt-marker-label">All Nuclear Weapons</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="play-video-button detail-element" data-youtube-url="https://youtu.be/qZmJNdlaAJo">
+                    <span>Watch on YouTube ↗</span>
+                </button>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- Chicxulub Impact Section -->
+        <section class="event-section" id="chicxulub">
+            <div class="video-container">
+                <div class="video-card liquid" tabindex="0" data-youtube-url="https://youtu.be/fHfV-qcE6XA">
+                    <img src="https://images.unsplash.com/photo-1464802686167-b939a6910659?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2050&q=80" alt="Chicxulub Impact" class="thumbnail">
+                    <div class="play-overlay">
+                        <div class="play-icon" aria-hidden="true"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-panel liquid">
+                <h2 class="detail-element">Chicxulub Impact</h2>
+                <p class="date detail-element">~66 million years ago</p>
+                <p class="location detail-element">Yucatán Peninsula, Mexico</p>
+                <p class="description detail-element">The catastrophic asteroid impact that ended the Cretaceous period, causing the mass extinction of dinosaurs and 75% of all species. The 10-15 km wide asteroid created a 180 km crater and triggered global climate changes that reshaped life on Earth.</p>
+                
+                <!-- TNT Comparison Bar -->
+                <div class="tnt-comparison detail-element">
+                    <div class="tnt-label">
+                        <span>ENERGY RELEASE</span>
+                        <span class="tnt-value">100 Million Megatons of TNT</span>
+                    </div>
+                    <div class="tnt-bar-container">
+                        <div class="tnt-bar" data-width="100"></div>
+                        <div class="tnt-marker tnt-nuclear">
+                            <div class="tnt-marker-label">Largest Nuclear Bomb</div>
+                        </div>
+                        <div class="tnt-marker tnt-modern">
+                            <div class="tnt-marker-label">Modern Nuke</div>
+                        </div>
+                        <div class="tnt-marker tnt-all-nukes">
+                            <div class="tnt-marker-label">All Nuclear Weapons</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="play-video-button detail-element" data-youtube-url="https://youtu.be/fHfV-qcE6XA">
+                    <span>Watch on YouTube ↗</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Navigation Button Section -->
+        <div class="navigation-section">
+            <a href="historyonmeteors6.html" class="navigation-button liquid">
+                <span>Continue to Meteors History →</span>
+            </a>
+        </div>
+    </main>
+
+    <!-- Background Music Element -->
+    <audio id="backgroundMusic" loop>
+        <source src="background music.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        // Create enhanced particle background
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 40;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random properties
+                const size = Math.random() * 4 + 1;
+                const left = Math.random() * 100;
+                const animationDuration = Math.random() * 25 + 15;
+                const animationDelay = Math.random() * 15;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${left}%`;
+                particle.style.animationDuration = `${animationDuration}s`;
+                particle.style.animationDelay = `${animationDelay}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Simple Video URL Handling - Open YouTube in new tab
+        function initVideoLinks() {
+            const videoCards = document.querySelectorAll('.video-card');
+            const playButtons = document.querySelectorAll('.play-video-button');
+
+            function openYouTubeVideo(youtubeUrl) {
+                if (youtubeUrl) {
+                    // Open YouTube URL in a new tab
+                    window.open(youtubeUrl, '_blank', 'noopener,noreferrer');
+                } else {
+                    console.error('No YouTube URL provided');
+                }
+            }
+
+            // Add click event to video cards
+            videoCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const youtubeUrl = this.getAttribute('data-youtube-url');
+                    openYouTubeVideo(youtubeUrl);
+                });
+                
+                // Keyboard accessibility
+                card.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const youtubeUrl = this.getAttribute('data-youtube-url');
+                        openYouTubeVideo(youtubeUrl);
+                    }
+                });
+            });
+
+            // Add click event to play buttons
+            playButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const youtubeUrl = this.getAttribute('data-youtube-url');
+                    openYouTubeVideo(youtubeUrl);
+                });
+            });
+        }
+
+        // Enhanced Scroll animation for sections
+        function initScrollAnimations() {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        // Animate TNT bars when section becomes visible
+                        const tntBars = entry.target.querySelectorAll('.tnt-bar');
+                        tntBars.forEach(bar => {
+                            const width = bar.getAttribute('data-width');
+                            // Cap at 100% for the bar visualization
+                            const displayWidth = Math.min(width, 100);
+                            setTimeout(() => {
+                                bar.style.width = `${displayWidth}%`;
+                            }, 700);
+                        });
+                    }
+                });
+            }, observerOptions);
+            
+            const sections = document.querySelectorAll('.event-section');
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        }
+
+        // Enhanced Cursor-based background movement
+        function initCursorInteraction() {
+            document.addEventListener('mousemove', (e) => {
+                const gradientFlow = document.querySelector('.gradient-flow');
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                
+                gradientFlow.style.transform = `translate(${-x * 30}px, ${-y * 30}px) rotate(${x * 5}deg) scale(1.05)`;
+            });
+        }
+
+        // Add parallax effect on scroll
+        function initParallax() {
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const parallaxElements = document.querySelectorAll('.background-animation, .floating-element');
+                
+                parallaxElements.forEach(el => {
+                    const speed = el.classList.contains('floating-element') ? 0.5 : 0.3;
+                    el.style.transform = `translateY(${scrolled * speed}px)`;
+                });
+            });
+        }
+
+        // Initialize sound effects
+        function initSoundEffects() {
+            // Create audio elements for the sounds
+            const hoverSound = new Audio('history of astroids,meteors/hover,history.mp3');
+            const clickSound = new Audio('history of astroids,meteors/casual click.mp3');
+            
+            // Set volume levels (adjust as needed)
+            hoverSound.volume = 0.3;
+            clickSound.volume = 0.4;
+            
+            // Add hover sound to elements with hover effects
+            const hoverElements = document.querySelectorAll('.liquid, .video-card, .play-video-button, .navigation-button');
+            hoverElements.forEach(element => {
+                element.addEventListener('mouseenter', () => {
+                    // Reset the sound to the beginning and play
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => {
+                        // Handle autoplay restrictions
+                        console.log('Hover sound play failed:', e);
+                    });
+                });
+            });
+            
+            // Add click sound to the document body
+            document.body.addEventListener('click', (event) => {
+                // Only play the sound if the click is not on a video element
+                // (which would have its own sound)
+                if (!event.target.closest('.video-card') && 
+                    !event.target.closest('.play-video-button') &&
+                    !event.target.closest('.navigation-button')) {
+                    // Reset the sound to the beginning and play
+                    clickSound.currentTime = 0;
+                    clickSound.play().catch(e => {
+                        // Handle autoplay restrictions
+                        console.log('Click sound play failed:', e);
+                    });
+                }
+            });
+        }
+
+        // Initialize background music
+        function initBackgroundMusic() {
+            const backgroundMusic = document.getElementById('backgroundMusic');
+            let musicStarted = false;
+            
+            // Function to start background music
+            function startBackgroundMusic() {
+                if (!musicStarted) {
+                    backgroundMusic.volume = 0.5; // Set volume to 50%
+                    backgroundMusic.play().then(() => {
+                        console.log('Background music started');
+                        musicStarted = true;
+                    }).catch(error => {
+                        console.log('Background music play failed:', error);
+                    });
+                }
+            }
+            
+            // Start music on first user interaction
+            document.addEventListener('click', startBackgroundMusic, { once: true });
+            document.addEventListener('keydown', startBackgroundMusic, { once: true });
+            document.addEventListener('touchstart', startBackgroundMusic, { once: true });
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            initVideoLinks();
+            initScrollAnimations();
+            initCursorInteraction();
+            initParallax();
+            initSoundEffects();
+            initBackgroundMusic();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Asteroid — Premium Interactive UI</title>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="asteroid.css">
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+
+    <div id="cursorHalo" class="cursor-halo"></div>
+    <div id="cursorDot" class="cursor-dot"></div>
+
+    <main class="stage">
+        <section class="asteroid-section">
+            <div class="asteroid-container intro-fade" id="asteroidContainer" title="Click / hover to interact">
+                <div class="loading-indicator" id="loadingIndicator"></div>
+                <div class="asteroid-orbit"></div>
+                <div class="asteroid-info">Click to rotate • Hover to inspect</div>
+            </div>
+        </section>
+
+        <aside>
+            <div class="panel intro-fade" id="infoPanel">
+                <div class="panel-content">
+                    <h1>Asteroids — Rocky Remnants</h1>
+                    <div class="tabs">
+                        <button class="tab active" data-tab="tabOverview">Overview</button>
+                        <button class="tab" data-tab="tabOrbit">Orbits</button>
+                        <button class="tab" data-tab="tabTypes">Types</button>
+                        <button class="tab" data-tab="tabMissions">Missions</button>
+                        <button class="tab" data-tab="tabHazards">Hazards</button>
+                    </div>
+
+                    <div class="tab-contents">
+                        <div id="tabOverview" class="content-pane show">
+                            <p>Asteroids are rocky remnants left over from the early formation of our solar system about 4.6 billion years ago...</p>
+                            <ul class="facts">
+                                <li><strong>Location:</strong> Mostly the main asteroid belt between Mars & Jupiter.</li>
+                                <li><strong>Composition:</strong> Rock, metal, and sometimes ice.</li>
+                                <li><strong>Use:</strong> Science, potential resources, and planetary defense.</li>
+                            </ul>
+                        </div>
+
+                        <div id="tabOrbit" class="content-pane">
+                            <ul class="facts">
+                                <li><strong>Elements:</strong> semi-major axis, eccentricity, inclination, argument of perihelion, etc.</li>
+                                <li><strong>Groups:</strong> Main-belt, Trojans, Near-Earth Objects (NEOs), Atens/Apollos/Amors.</li>
+                                <li><strong>Influence:</strong> Jupiter shepherds and perturbs many orbits — resonances create gaps.</li>
+                            </ul>
+                        </div>
+
+                        <div id="tabTypes" class="content-pane">
+                            <ul class="facts">
+                                <li><strong>C-type:</strong> Carbonaceous; dark and primitive.</li>
+                                <li><strong>S-type:</strong> Silicaceous; more reflective.</li>
+                                <li><strong>M-type:</strong> Metallic, high radar albedo.</li>
+                            </ul>
+                        </div>
+
+                        <div id="tabMissions" class="content-pane">
+                            <ul class="facts">
+                                <li><strong>OSIRIS-REx</strong> — sample return from Bennu.</li>
+                                <li><strong>Hayabusa2</strong> — sample return from Ryugu.</li>
+                                <li><strong>DART</strong> — kinetic impact test (Dimorphos).</li>
+                            </ul>
+                        </div>
+
+                        <div id="tabHazards" class="content-pane">
+                            <ul class="facts">
+                                <li><strong>Detection:</strong> Ground-based telescopes and space observatories</li>
+                                <li><strong>Tracking:</strong> Orbital calculation and impact probability assessment</li>
+                                <li><strong>Deflection:</strong> Kinetic impactors, gravity tractors, and nuclear options</li>
+                            </ul>
+                        </div>
+
+                        <div class="nasa-sources">
+                            <strong>Sources:</strong>
+                            <a href="https://science.nasa.gov/solar-system/asteroids/" target="_blank">NASA — Asteroids Overview</a><br>
+                            <a href="https://science.nasa.gov/solar-system/asteroids/facts/" target="_blank">NASA — Asteroid Facts</a><br>
+                            <a href="https://science.nasa.gov/solar-system/asteroids/exploration/" target="_blank">NASA — Asteroid Missions & Exploration</a><br>
+                            <a href="https://www.nasa.gov/solar-system/asteroids/asteroid-fast-facts/" target="_blank">NASA — Asteroid Fast Facts</a><br>
+                            <a href="https://www.nasa.gov/learning-resources/what-are-asteroids-ages-14-18/" target="_blank">NASA — What Are Asteroids</a>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- UPDATED: Navigation Button in Bottom Left -->
+        <div class="navigation-button-container intro-fade">
+            <button id="detectionButton" class="detection-button">
+                <span class="button-icon">🚀</span>
+                <span class="button-content">
+                    <span class="button-title">Asteroid Detection</span>
+                    <span class="button-subtitle">Advanced Monitoring System</span>
+                </span>
+                <span class="button-arrow">→</span>
+            </button>
+        </div>
+    </main>
+
+    <div id="toast"></div>
+
+    <!-- Include your JS -->
+    <script src="asteroid.js"></script>
+</body>
+</html>

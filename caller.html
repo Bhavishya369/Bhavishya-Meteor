@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Explorer | Glass Morphic Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="caller.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="gradient-bg"></div>
+    <canvas id="particleCanvas"></canvas>
+    
+    <!-- Main Glass Container -->
+    <div class="glass-container">
+        <!-- Header -->
+        <div class="glass-header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L14 7L19 7L15 10L16 15L12 12L8 15L9 10L5 7L10 7L12 2Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="logo-text">COSMIC EXPLORER</div>
+            </div>
+            <div class="status-indicators">
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>SYSTEMS ONLINE</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot" style="background: #00ff9d;"></div>
+                    <span>CONNECTION STABLE</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Missions Panel -->
+            <div class="glass-panel missions-panel">
+                <h2 class="panel-title">CELESTIAL BODIES DATABASE</h2>
+                <p class="panel-subtitle">Click on any celestial body to explore detailed information</p>
+                <div class="missions-grid">
+                    <div class="mission-card" data-mission="asteroid">
+                        <div class="mission-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L14.5 8.5L21 9L16 13L17.5 19.5L12 16L6.5 19.5L8 13L3 9L9.5 8.5L12 2Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <h3 class="mission-name">INTRODUCTION TO ASTEROIDS</h3>
+                        <p class="mission-desc">Explore the rocky remnants from the early solar system. Learn about their composition, orbits, and impact on planetary science.</p>
+                        <div class="mission-meta">
+                            <span>DATA SIZE: ...</span>
+                            <div class="mission-status">
+                                <div class="status-dot"></div>
+                                <span>READY</span>
+                            </div>
+                        </div>
+                        <div class="click-indicator">CLICK TO EXPLORE →</div>
+                    </div>
+                    
+                    <div class="mission-card" data-mission="meteor">
+                        <div class="mission-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L15 9L22 9L16 14L18 21L12 17L6 21L8 14L2 9L9 9L12 2Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <h3 class="mission-name">INTRODUCTION TO METEORS</h3>
+                        <p class="mission-desc">Study the celestial phenomena of shooting stars. Understand meteor showers, composition, and atmospheric entry dynamics.</p>
+                        <div class="mission-meta">
+                            <span>DATA SIZE: ...</span>
+                            <div class="mission-status">
+                                <div class="status-dot"></div>
+                                <span>READY</span>
+                            </div>
+                        </div>
+                        <div class="click-indicator">CLICK TO EXPLORE →</div>
+                    </div>
+                    
+                    <div class="mission-card" data-mission="comet">
+                        <div class="mission-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L14 7L19 7L15 10L16 15L12 12L8 15L9 10L5 7L10 7L12 2Z" fill="currentColor"/>
+                                <path d="M4 20L8 16" stroke="currentColor" stroke-width="2"/>
+                                <path d="M8 20L12 16" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <h3 class="mission-name">INTRODUCTION TO COMETS</h3>
+                        <p class="mission-desc">Discover the icy visitors from the outer solar system. Learn about their structure, orbits, and spectacular tails.</p>
+                        <div class="mission-meta">
+                            <span>DATA SIZE: ...</span>
+                            <div class="mission-status">
+                                <div class="status-dot"></div>
+                                <span>READY</span>
+                            </div>
+                        </div>
+                        <div class="click-indicator">CLICK TO EXPLORE →</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Panel -->
+            <div class="dashboard-panel">
+                <div class="glass-panel stats-card">
+                    <h2 class="panel-title">DATABASE STATISTICS</h2>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">ACTIVE</span>
+                            <span class="stat-value">3</span>
+                            <span class="stat-label">DATABASES</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">TOTAL</span>
+                            <span class="stat-value">10.2</span>
+                            <span class="stat-label">TERABYTES</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">QUERIES</span>
+                            <span class="stat-value">2.7K</span>
+                            <span class="stat-label">TODAY</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">USERS</span>
+                            <span class="stat-value">842</span>
+                            <span class="stat-label">ONLINE</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">UPTIME</span>
+                            <span class="stat-value">99.8%</span>
+                            <span class="stat-label">RELIABILITY</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">SPEED</span>
+                            <span class="stat-value">1.2</span>
+                            <span class="stat-label">GB/S</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-panel terminal">
+                    <div class="terminal-header">
+                        <span>SYSTEM TERMINAL</span>
+                        <span>v4.1.2</span>
+                    </div>
+                    <div class="terminal-content" id="terminalContent">
+                        <!-- Terminal output will be populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="glass-footer">
+            <div class="copyright">© 2157 INTERSTELLAR KNOWLEDGE NETWORK</div>
+            <div class="nav-controls">
+                <button class="glass-btn" id="systemsBtn">SYSTEMS</button>
+                <button class="glass-btn" id="databaseBtn">DATABASE</button>
+                <button class="glass-btn" id="debugBtn">DEBUG</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+        <div class="debug-header">
+            <span>DEBUG CONSOLE</span>
+            <span>SYSTEM STATUS</span>
+        </div>
+        <div class="debug-content" id="debugContent">
+            <!-- Debug information will be populated by JS -->
+        </div>
+    </div>
+    
+    <!-- Launch Overlay -->
+    <div class="launch-overlay" id="launchOverlay">
+        <div class="rocket-container">
+            <svg class="rocket" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L14.5 8.5L21 9L16 13L17.5 19.5L12 16L6.5 19.5L8 13L3 9L9.5 8.5L12 2Z" fill="currentColor"/>
+                <path d="M12 16L12 22" stroke="currentColor" stroke-width="2"/>
+                <path d="M9 19L15 19" stroke="currentColor" stroke-width="2"/>
+            </svg>
+        </div>
+        <div class="countdown" id="countdown">3</div>
+        <div class="panel-title">ACCESSING DATABASE</div>
+    </div>
+
+    <script src="caller.js"></script>
+</body>
+</html>

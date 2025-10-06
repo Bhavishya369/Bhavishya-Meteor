@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asteroid Viewer Premium</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+
+  #textMainLeft {
+    position: relative;
+    transform: translateX(145px);
+  }
+
+  body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: #111;
+    color: #fff;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Arial', sans-serif;
+  }
+
+  .nasa-text {
+    position: absolute;
+    top: 65px;
+    left: 15px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.9rem;
+    color: rgba(113, 124, 124, 0.778);
+    opacity: 0.8;
+    z-index: 15;
+  }
+
+  h1#title {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Orbitron', monospace;
+    font-size: 5rem;
+    color: #00ffff;
+    margin: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  #viewer {
+    flex: 1;
+    width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .text-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    z-index: 5;
+    padding: 0 210px;
+    box-sizing: border-box;
+  }
+
+  .text-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: none;
+    overflow: visible;
+  }
+
+  .text-main {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 300;
+    background: linear-gradient(90deg, #76ddff, #a7f3d0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 10px 0;
+    line-height: 1.2;
+    text-shadow: 0 0 8px rgba(118, 221, 255, 0.6);
+  }
+
+  .text-sub {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #ff7eb6, #8ab4ff, #a855f7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 10px 0;
+    line-height: 1.1;
+    text-shadow: 0 0 12px rgba(168, 85, 247, 0.7);
+  }
+
+  .model-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .model-container canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+  }
+
+  .logo {
+    position: absolute;
+    top: 15px;
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 50%;
+    z-index: 15;
+    opacity: 0.5;
+  }
+
+  .logo-left { left: 15px; }
+  .logo-right { right: 15px; }
+
+  .team-text {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    white-space: pre;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #ffffff;
+    z-index: 15;
+  }
+
+  /* Label styles (kept small and close to model) */
+  .label-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+
+  .label-overlay.visible {
+    opacity: 1;
+  }
+
+  .label {
+    position: absolute;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    color: #bfeff0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    pointer-events: none;
+    text-shadow: 0 0 6px rgba(0,255,247,0.22);
+    transform-origin: left top;
+  }
+
+  /* short slanted connector */
+  .label-line {
+    position: absolute;
+    background: rgba(255,255,255,0.95);
+    height: 1px;
+    transform-origin: left center;
+    pointer-events: none;
+    box-shadow: 0 0 6px rgba(0,255,247,0.14);
+  }
+
+  /* small horizontal under the text */
+  .text-line {
+    position: absolute;
+    background: rgba(255,255,255,0.85);
+    height: 1px;
+    pointer-events: none;
+  }
+
+  /* small anchor dot on model */
+  .anchor-dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 8px rgba(0,255,247,0.6);
+    pointer-events: none;
+    opacity: 0.0;
+    transition: opacity 0.15s ease;
+  }
+
+  .anchor-dot.visible { opacity: 1; }
+
+  @media (max-width: 768px) {
+    .text-main { font-size: 1.5rem; }
+    .text-sub { font-size: 2rem; }
+    h1#title { font-size: 3rem; }
+    .text-overlay { padding: 0 20px; }
+    .logo { width: 32px; height: 32px; }
+    .team-text { bottom: 10px; font-size: 0.7rem; }
+    .label { font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NASA logo top-left -->
+<img src="Nasa logo.png" alt="NASA Logo" class="logo logo-left">
+
+<!-- Text below NASA logo -->
+<div class="nasa-text">// Nasa space apps challenge 2025</div>
+
+<!-- Bhavishya logo top-right -->
+<img src="bhavishya.jpg" alt="Bhavishya Logo" class="logo logo-right">
+
+<!-- Plain text in bottom-right corner -->
+<pre class="team-text">
+┌                                                                                          ┐
+   
+<span style="color: grey;">                        //////Team Bhavishya</span>
+
+<span style="color: #76ddff;">         We aim to transform cosmic curiosity 
+         into immersive digital experiences that 
+        inspire wonder and exploration.</span>
+
+└                                                                                          ┘
+</pre>
+
+<div id="viewer">
+  <div class="text-overlay" id="textOverlay">
+    <div class="text-side text-left">
+      <div class="text-main" id="textMainLeft">Dive into</div>
+      <div class="text-sub" id="textSubLeft">Asteroids</div>
+    </div>
+    <div class="text-side text-right">
+      <div class="text-main" id="textMainRight">the madness of</div>
+      <div class="text-sub" id="textSubRight">&Meteors</div>
+    </div>
+  </div>
+  
+  <div class="model-container">
+    <!-- 3D model will be rendered here -->
+  </div>
+
+  <!-- Label overlay -->
+  <div class="label-overlay" id="labelOverlay">
+    <!-- North Pole -->
+    <div class="label" id="northLabel">NP_01 // NORTH POLE</div>
+    <div class="text-line" id="northTextLine"></div>
+    <div class="label-line" id="northLine"></div>
+    <div class="anchor-dot" id="northDot"></div>
+
+    <!-- South Pole -->
+    <div class="label" id="southLabel">SP_02 // SOUTH POLE</div>
+    <div class="text-line" id="southTextLine"></div>
+    <div class="label-line" id="southLine"></div>
+    <div class="anchor-dot" id="southDot"></div>
+
+    <!-- Equator -->
+    <div class="label" id="equatorLabel">EQ_03 // EQUATOR</div>
+    <div class="text-line" id="equatorTextLine"></div>
+    <div class="label-line" id="equatorLine"></div>
+    <div class="anchor-dot" id="equatorDot"></div>
+
+    <!-- Asteroid -->
+    <div class="label" id="asteroidLabel">AST_04 // ASTEROID</div>
+    <div class="text-line" id="asteroidTextLine"></div>
+    <div class="label-line" id="asteroidLine"></div>
+    <div class="anchor-dot" id="asteroidDot"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+<script>
+// --- Three.js Setup (kept as your original) ---
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 3;
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.querySelector('.model-container').appendChild(renderer.domElement);
+
+// Lights
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.2 * 1.33); 
+scene.add(ambientLight);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5 * 1.33);
+directionalLight.position.set(10, 10, 5);
+scene.add(directionalLight);
+
+// Models & other vars (unchanged)
+let model = null;
+let backgroundScene = null;
+let targetSpeed = 0.007; 
+let currentSpeed = targetSpeed;
+let smoothness = 0.1; 
+const loader = new THREE.GLTFLoader();
+
+loader.load('scene.gltf', gltf => {
+    backgroundScene = gltf.scene;
+    backgroundScene.scale.set(5,5,5);
+    backgroundScene.position.set(0,0,-3);
+    scene.add(backgroundScene);
+
+    createSceneParticles(); // <-- add particles inside GLTF scene
+}, undefined, err => { console.warn("Background failed to load:", err); });
+
+
+// Load asteroid model (unchanged)
+loader.load('model.glb', gltf => {
+    model = gltf.scene;
+    model.scale.set(1,1,1);
+    scene.add(model);
+}, undefined, error => {
+    console.error('Error loading model, using placeholder.');
+    const geometry = new THREE.IcosahedronGeometry(1, 2);
+    const material = new THREE.MeshStandardMaterial({ color: 0x666666, roughness: 0.8 });
+    model = new THREE.Mesh(geometry, material);
+    scene.add(model);
+});
+
+// --- Shooting Stars (unchanged) ---
+let shootingStars = [];
+let lastStarTime = performance.now();
+
+function createShootingStars() {
+    const count = Math.floor(Math.random() * 3) + 1;
+    for (let i = 0; i < count; i++) {
+        const length = 1.0;
+        const geometry = new THREE.PlaneGeometry(length, 0.025);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 256; canvas.height = 16;
+        const ctx = canvas.getContext('2d');
+
+        const gradient = ctx.createLinearGradient(256,0,0,0);
+        gradient.addColorStop(0,'white');
+        gradient.addColorStop(1,'transparent');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0,0,256,16);
+
+        const texture = new THREE.CanvasTexture(canvas); 
+        texture.needsUpdate = true;
+
+        const material = new THREE.MeshBasicMaterial({ map: texture, transparent:true, side:THREE.DoubleSide });
+        const star = new THREE.Mesh(geometry, material);
+
+        const xStart = -6;
+        const yStart = Math.random()*6 + 2;
+        const zStart = -2;
+        star.position.set(xStart, yStart, zStart);
+
+        const angle = -Math.PI/6;
+        star.userData = { angle, speed:0.12 + Math.random()*0.05 };
+        star.rotation.z = angle;
+
+        scene.add(star);
+        shootingStars.push(star);
+    }
+    lastStarTime = performance.now();
+}
+
+// --- Interaction and Labels ---
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let isMouseOverModel = false;
+
+// Label elements
+const labelOverlay = document.getElementById('labelOverlay');
+const labels = {
+    north: {
+        label: document.getElementById('northLabel'),
+        textLine: document.getElementById('northTextLine'),
+        labelLine: document.getElementById('northLine'),
+        dot: document.getElementById('northDot')
+    },
+    south: {
+        label: document.getElementById('southLabel'),
+        textLine: document.getElementById('southTextLine'),
+        labelLine: document.getElementById('southLine'),
+        dot: document.getElementById('southDot')
+    },
+    equator: {
+        label: document.getElementById('equatorLabel'),
+        textLine: document.getElementById('equatorTextLine'),
+        labelLine: document.getElementById('equatorLine'),
+        dot: document.getElementById('equatorDot')
+    },
+    asteroid: {
+        label: document.getElementById('asteroidLabel'),
+        textLine: document.getElementById('asteroidTextLine'),
+        labelLine: document.getElementById('asteroidLine'),
+        dot: document.getElementById('asteroidDot')
+    }
+};
+
+// Offsets are small so labels stay near the object (matches your sketch)
+const smallOffsets = {
+    north: { x: 0, y: -70 },
+    south: { x: 0, y: 70 },
+    equator: { x: -90, y: 0 },
+    asteroid: { x: 90, y: 0 }
+};
+
+window.addEventListener('mousemove', (event) => {
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left)/rect.width)*2 - 1;
+    mouse.y = -((event.clientY - rect.top)/rect.height)*2 + 1;
+});
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Utility to compute screen coords of a 3D point on model
+function worldToScreen(pos3) {
+    const p = pos3.clone().applyMatrix4(model.matrixWorld);
+    const projected = p.project(camera);
+    return {
+        x: (projected.x * 0.5 + 0.5) * window.innerWidth,
+        y: (-projected.y * 0.5 + 0.5) * window.innerHeight
+    };
+}
+
+// Updated label logic: short connectors, text near model
+function updateLabels() {
+    // show only on hover
+    if (!model || !isMouseOverModel) {
+        labelOverlay.classList.remove('visible');
+        // hide dots
+        Object.values(labels).forEach(l => { l.dot.classList.remove('visible'); });
+        return;
+    }
+
+    labelOverlay.classList.add('visible');
+
+    // 3D anchor points on model
+    const anchors = {
+        north: new THREE.Vector3(0, 1, 0),
+        south: new THREE.Vector3(0, -1, 0),
+        equator: new THREE.Vector3(-1, 0, 0),
+        asteroid: new THREE.Vector3(1, 0, 0)
+    };
+
+    const textLineLength = 30;   // small horizontal under text
+    const slantedLen = 24;       // short angled connector length
+
+    Object.keys(labels).forEach(key => {
+        const modelScreen = worldToScreen(anchors[key]);
+        const off = smallOffsets[key];
+
+        // Label position = model position + small offset (keeps label close)
+        const labelX = modelScreen.x + off.x;
+        const labelY = modelScreen.y + off.y;
+
+        // Place label
+        labels[key].label.style.left = `${labelX}px`;
+        labels[key].label.style.top = `${labelY - 10}px`;
+
+        // Decide horizontal text line direction (toward the model)
+        let horizStartX, horizWidth;
+        if (off.x < 0) {
+            // label is left of model -> text-line extends right toward model
+            horizStartX = labelX;
+            horizWidth = textLineLength;
+        } else if (off.x > 0) {
+            // label is right of model -> text-line extends left toward model
+            horizStartX = labelX - textLineLength;
+            horizWidth = textLineLength;
+        } else {
+            // vertical offsets (north/south), pick direction toward center (right)
+            horizStartX = labelX;
+            horizWidth = textLineLength;
+        }
+        labels[key].textLine.style.left = `${horizStartX}px`;
+        labels[key].textLine.style.top  = `${labelY + 6}px`;
+        labels[key].textLine.style.width = `${horizWidth}px`;
+
+        // slanted connector: start at end of horizontal text-line and go a short step toward model
+        const lineStartX = (off.x < 0) ? (horizStartX + horizWidth) : (horizStartX); // end point of horizontal line
+        const lineStartY = labelY + 6;
+
+        // angle from line start to model point
+        const angle = Math.atan2(modelScreen.y - lineStartY, modelScreen.x - lineStartX);
+
+        // place short slanted connector
+        labels[key].labelLine.style.left = `${lineStartX}px`;
+        labels[key].labelLine.style.top  = `${lineStartY}px`;
+        labels[key].labelLine.style.width = `${slantedLen}px`;
+        labels[key].labelLine.style.transform = `rotate(${angle}rad)`;
+
+        // small anchor dot near the actual model point
+        labels[key].dot.style.left = `${modelScreen.x - 3}px`;
+        labels[key].dot.style.top  = `${modelScreen.y - 3}px`;
+        labels[key].dot.classList.add('visible');
+    });
+}
+
+// --- Animation Loop ---
+function animate(){
+    requestAnimationFrame(animate);
+
+    // Rotate model
+    if(model){
+        raycaster.setFromCamera(mouse,camera);
+        const intersects = raycaster.intersectObject(model,true);
+        isMouseOverModel = intersects.length > 0;
+
+        if(isMouseOverModel){
+            currentSpeed += (0-currentSpeed)*smoothness;
+        } else {
+            currentSpeed += (targetSpeed-currentSpeed)*smoothness;
+        }
+        model.rotation.y += currentSpeed;
+
+        // Update labels each frame (will show only on hover)
+        updateLabels();
+    }
+
+    // Background parallax (unchanged)
+    if (backgroundScene) {
+        const targetRotY = mouse.x * 0.3;
+        const targetRotX = mouse.y * 0.2;
+
+        backgroundScene.rotation.y += (targetRotY - backgroundScene.rotation.y) * 0.05;
+        backgroundScene.rotation.x += (targetRotX - backgroundScene.rotation.x) * 0.05;
+
+        const maxShift = 1.5;
+        const targetX = THREE.MathUtils.clamp(mouse.x * 1.2, -maxShift, maxShift);
+        const targetY = THREE.MathUtils.clamp(mouse.y * 1.0, -maxShift, maxShift);
+
+        backgroundScene.position.x += (targetX - backgroundScene.position.x) * 0.05;
+        backgroundScene.position.y += (targetY - backgroundScene.position.y) * 0.05;
+    }
+    // Animate dust inside scene.gltf
+// Animate dust inside scene.gltf
+if(sceneParticles){
+    const positions = sceneParticles.geometry.attributes.position.array;
+    for(let i = 0; i < positions.length; i += 3){
+        positions[i+1] -= 0.001 + Math.random()*0.001; // move slowly downward
+        if(positions[i+1] < -5) positions[i+1] = 5; // reset Y when below limit
+    }
+    sceneParticles.geometry.attributes.position.needsUpdate = true;
+}
+
+
+
+    // Shooting stars (unchanged)
+    const now = performance.now();
+    if (now - lastStarTime > 10000) {
+        createShootingStars();
+    }
+
+    shootingStars.forEach((star, index) => {
+        star.position.x += Math.cos(star.userData.angle) * star.userData.speed;
+        star.position.y += Math.sin(star.userData.angle) * star.userData.speed;
+
+        if (star.position.x > 10 || star.position.y < -2) {
+            scene.remove(star);
+            shootingStars.splice(index,1);
+        }
+    });
+
+    renderer.render(scene, camera);
+}
+let sceneParticles = null;
+
+function createSceneParticles(){
+    if(!backgroundScene) return;
+
+    const particleCount = 500; // number of dust particles
+    const geometry = new THREE.BufferGeometry();
+    const positions = [];
+
+    for(let i = 0; i < particleCount; i++){
+        positions.push(
+            (Math.random() - 0.5) * 10, // x
+            (Math.random() - 0.5) * 10, // y
+            (Math.random() - 0.5) * 10  // z
+        );
+    }
+
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+    const material = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.05,
+        transparent: true,
+        opacity: 0.8
+    });
+
+    sceneParticles = new THREE.Points(geometry, material);
+    backgroundScene.add(sceneParticles); // attach to GLTF scene
+}
+
+animate();
+</script>
+</body>
+</html>

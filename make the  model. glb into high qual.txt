@@ -1,0 +1,1464 @@
+make the  model. glb into high quality
+also whenever i click on the screen it should feel like a futuristic touch like the particles there will be brighten or something happens, creating a futuristic feel. or something touching in water or ice. 
+also before the camera moves every thing needs to be brightened in space theme for once, just showing something like that they are being loaded or rendered. for reference you can check the site called igloo.inc.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asteroid Viewer Premium</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+/* Loading Screen Styles */
+#loadingScreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(26,19,18);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 1;
+  transition: opacity 0.8s ease;
+}
+
+#loadingScreen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Stars Background */
+.stars, .stars2, .stars3 {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.stars::after {
+  content: "";
+  position: absolute;
+  width: 2px; height: 2px;
+  background: white; border-radius: 50%;
+  box-shadow:
+    50px 100px white,
+    200px 50px white,
+    400px 300px white,
+    600px 150px white,
+    800px 250px white,
+    1000px 400px white;
+  animation: twinkle 5s linear infinite;
+}
+
+.stars2::after {
+  content: "";
+  position: absolute;
+  width: 1.5px; height: 1.5px;
+  background: #99f; border-radius: 50%;
+  box-shadow:
+    100px 200px #99f,
+    300px 150px #99f,
+    500px 400px #99f,
+    700px 50px #99f,
+    900px 300px #99f;
+  animation: twinkle 7s linear infinite;
+}
+
+.stars3::after {
+  content: "";
+  position: absolute;
+  width: 1px; height: 1px;
+  background: #0ff; border-radius: 50%;
+  box-shadow:
+    150px 50px #0ff,
+    350px 200px #0ff,
+    550px 100px #0ff,
+    750px 300px #0ff,
+    950px 150px #0ff;
+  animation: twinkle 10s linear infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { transform: translateY(0px); opacity: 1; }
+  50% { transform: translateY(-2px); opacity: 0.6; }
+}
+
+/* Terminal Loader */
+.terminal-loader {
+  border: 1px solid #333;
+  background-color: rgba(26, 26, 26, 0.9);
+  color: #0f0;
+  font-size: 1.29167em;
+  padding: 2em 1.29167em;
+  width: 15.5em;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.terminal-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5em;
+  background-color: #333;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  padding: 0 0.4em;
+  box-sizing: border-box;
+}
+
+.terminal-controls {
+  float: right;
+}
+
+.control {
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  margin-left: 0.4em;
+  border-radius: 50%;
+  background-color: #777;
+}
+
+.control.close { background-color: #e33; }
+.control.minimize { background-color: #ee0; }
+.control.maximize { background-color: #0b0; }
+
+.terminal-title {
+  float: left;
+  line-height: 1.5em;
+  color: #eee;
+}
+
+.text {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 0.2em solid #0f0;
+  animation: typeAndDelete 4s steps(11) infinite, blinkCursor 0.5s step-end infinite alternate;
+  margin-top: 1.5em;
+}
+
+@keyframes blinkCursor {
+  50% { border-right-color: transparent; }
+}
+
+@keyframes typeAndDelete {
+  0%, 10% { width: 0; }
+  45%, 55% { width: 6.2em; }
+  90%, 100% { width: 0; }
+}
+
+/* Animation Classes - ONLY FOR SPECIFIC ELEMENTS */
+.fade-in-element {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.fade-in-element.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered animations - ONLY FOR LOGOS AND MAIN TEXT */
+.logo-left { transition-delay: 0.3s; }
+.logo-right { transition-delay: 0.3s; }
+.team-bhavishya { transition-delay: 0.4s; }
+#textMainLeft { transition-delay: 0.5s; }
+#textSubLeft { transition-delay: 0.7s; }
+#textMainRight { transition-delay: 0.6s; }
+#textSubRight { transition-delay: 0.8s; }
+.tooltip-container { transition-delay: 1s; }
+
+/* Main Content - Hidden initially - YOUR ORIGINAL */
+body > *:not(#loadingScreen) {
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+body.content-loaded > *:not(#loadingScreen) {
+  opacity: 1;
+}
+
+/* Logo hover effects - ADDED */
+.logo {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.logo:hover {
+  transform: scale(1.1);
+  opacity: 0.8 !important;
+}
+
+/* Your original styles below - UNCHANGED */
+/* Futuristic info icon bottom-left */
+.tooltip-container {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 25;
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* Smaller SVG styling with softer glow */
+.tooltip-container svg {
+  width: 28px;
+  height: 28px;
+  fill: snow;
+  filter: drop-shadow(0 0 3px rgba(255,255,255,0.4)) 
+          drop-shadow(0 0 6px rgba(118,221,255,0.25));
+  transition: transform 0.5s ease, filter 0.5s ease;
+  cursor: pointer;
+}
+
+.tooltip-container svg:hover {
+  transform: rotate(360deg) scale(1.1);
+  filter: drop-shadow(0 0 5px rgba(255,255,255,0.7)) 
+          drop-shadow(0 0 10px rgba(118,221,255,0.5));
+}
+
+/* Tooltip box with reduced glow */
+.tooltip-container .info-tooltip {
+  position: absolute;
+  bottom: 2.8rem; /* show above icon */
+  left: 0; /* align with left edge of icon */
+  transform: scale(0.95);
+  width: 220px;  /* slightly smaller */
+  max-width: 85vw; /* responsive */
+  padding: 10px 12px;
+  background: rgba(15, 25, 35, 0.95);
+  border: 1px solid rgba(118,221,255,0.4);
+  border-radius: 8px;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: #e5f9ff;
+  text-align: left;
+  box-shadow: 0 0 6px rgba(118,221,255,0.2), 
+              inset 0 0 4px rgba(118,221,255,0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+/* Tooltip arrow with softer border */
+.tooltip-container .info-tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 12px;
+  transform: rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: rgba(15, 25, 35, 0.95);
+  border-left: 1px solid rgba(118,221,255,0.4);
+  border-bottom: 1px solid rgba(118,221,255,0.4);
+}
+
+/* Show tooltip on hover */
+.tooltip-container:hover .info-tooltip {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #111; /* same as body */
+  overflow: hidden;
+}
+
+#interactiveText span {
+  display: inline-block;
+  white-space: pre;
+  line-height: 1;
+  font-family: 'Exo 2', sans-serif;
+  transition: transform 0.2s, filter 0.2s;
+  text-shadow: 0 0 2px rgba(118,221,255,0.4), 0 0 5px rgba(118,221,255,0.2);
+}
+
+#textMainLeft {
+  position: relative;
+  transform: translateX(145px);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #111;
+  color: #fff;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Arial', sans-serif;
+}
+
+.nasa-text {
+  position: absolute;
+  top: 75px;
+  left: 0;           /* safe starting point */
+  transform: translateX(-575px); /* visually same offset */
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.9rem;
+  color: rgba(113, 124, 124, 0.778);
+  opacity: 0.8;
+  z-index: 15;
+}
+
+h1#title {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Orbitron', monospace;
+  font-size: 5rem;
+  color: #00ffff;
+  margin: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#viewer {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.text-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 5;
+  padding: 0 210px;
+  box-sizing: border-box;
+}
+
+.text-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: none;
+  overflow: visible;
+}
+
+.text-main {
+  font-family: 'Exo 2', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 300;
+  background: linear-gradient(90deg, #76ddff, #a7f3d0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 10px 0;
+  line-height: 1.2;
+  text-shadow: 0 0 8px rgba(118, 221, 255, 0.6);
+}
+
+.text-sub {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #ff7eb6, #8ab4ff, #a855f7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 10px 0;
+  line-height: 1.1;
+  text-shadow: 0 0 12px rgba(168, 85, 247, 0.7);
+}
+
+.model-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.model-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.logo {
+  position: absolute;
+  top: 15px;
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 50%;
+  z-index: 15;
+  opacity: 0.5;
+}
+
+.logo-left { left: 15px; }
+.logo-right { right: 15px; }
+
+.team-text {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  white-space: pre;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #ffffff;
+  z-index: 15;
+}
+
+/* Label styles (kept small and close to model) */
+.label-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.label-overlay.visible {
+  opacity: 1;
+}
+
+.label {
+  position: absolute;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.9rem;
+  color: #bfeff0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  pointer-events: none;
+  text-shadow: 0 0 6px rgba(0,255,247,0.22);
+  transform-origin: left top;
+}
+
+/* short slanted connector */
+.label-line {
+  position: absolute;
+  background: rgba(255,255,255,0.95);
+  height: 1px;
+  transform-origin: left center;
+  pointer-events: none;
+  box-shadow: 0 0 6px rgba(0,255,247,0.14);
+}
+
+/* small horizontal under the text */
+.text-line {
+  position: absolute;
+  background: rgba(255,255,255,0.85);
+  height: 1px;
+  pointer-events: none;
+}
+
+/* small anchor dot on model */
+.anchor-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(0,255,247,0.6);
+  pointer-events: none;
+  opacity: 0.0;
+  transition: opacity 0.15s ease;
+}
+
+.anchor-dot.visible { opacity: 1; }
+
+@media (max-width: 768px) {
+  .text-main { font-size: 1.5rem; }
+  .text-sub { font-size: 2rem; }
+  h1#title { font-size: 3rem; }
+  .text-overlay { padding: 0 20px; }
+  .logo { width: 32px; height: 32px; }
+  .team-text { bottom: 10px; font-size: 0.7rem; }
+  .label { font-size: 0.8rem; }
+}
+
+.glitch-hover {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  z-index: 15;
+}
+
+.glitch-hover::before,
+.glitch-hover::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  overflow: hidden;
+  opacity: 0; /* default invisible */
+}
+
+.glitch-hover::before { color: #f0f; }
+.glitch-hover::after  { color: #0ff; }
+
+@keyframes glitchAnim {
+  0%   { clip: rect(0,9999px,0,0); transform: translate(0,0); }
+  10%  { clip: rect(0,9999px,20px,0); transform: translate(-5px,-2px); }
+  30%  { clip: rect(10px,9999px,40px,0); transform: translate(5px,1px); }
+  50%  { clip: rect(20px,9999px,60px,0); transform: translate(-3px,2px); }
+  70%  { clip: rect(40px,9999px,80px,0); transform: translate(3px,-2px); }
+  90%  { clip: rect(60px,9999px,100px,0); transform: translate(-2px,3px); }
+  100% { clip: rect(0,9999px,0,0); transform: translate(0,0); }
+}
+
+/* temporary glitch class */
+.glitch-hover.glitch-active::before,
+.glitch-hover.glitch-active::after {
+  opacity: 1;
+  animation: glitchAnim 0.15s steps(2) 10 alternate-reverse; /* run only 10 steps */
+}
+
+/* NEW: Subtle Ice Touch Effect */
+.ice-touch {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 30;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, 
+    rgba(200, 230, 255, 0.15) 0%,
+    rgba(180, 220, 255, 0.1) 40%,
+    transparent 70%);
+  animation: iceTouch 0.8s ease-out forwards;
+  border: 1px solid rgba(200, 230, 255, 0.3);
+}
+
+@keyframes iceTouch {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    width: 80px;
+    height: 80px;
+    opacity: 0;
+  }
+}
+
+/* Subtle frost particles */
+.frost-particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(230, 250, 255, 0.6);
+  pointer-events: none;
+  z-index: 30;
+  animation: frostFloat 1s ease-out forwards;
+}
+
+@keyframes frostFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* NEW: Space Brightening Effect - Now triggered with camera */
+.camera-transition-effect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at center,
+    rgba(100, 180, 255, 0.3) 0%,
+    rgba(80, 160, 255, 0.15) 20%,
+    rgba(60, 140, 255, 0.08) 40%,
+    transparent 70%
+  );
+  z-index: 998;
+  pointer-events: none;
+  opacity: 0;
+  animation: cameraTransition 2s ease-out forwards;
+}
+
+@keyframes cameraTransition {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  30% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+  60% {
+    opacity: 0.3;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+/* Energy Pulse for Camera Start */
+.camera-energy-pulse {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(120, 200, 255, 0.4) 0%,
+    rgba(100, 180, 255, 0.2) 30%,
+    transparent 70%
+  );
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0;
+  animation: cameraEnergyPulse 1.5s ease-out forwards;
+}
+
+@keyframes cameraEnergyPulse {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  25% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  50% {
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(1.8);
+  }
+  75% {
+    opacity: 0.2;
+    transform: translate(-50%, -50%) scale(2.4);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(3);
+  }
+}
+
+/* Scan Lines Effect */
+.scan-lines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(100, 180, 255, 0.03) 50%,
+    transparent 100%
+  );
+  background-size: 100% 4px;
+  z-index: 997;
+  pointer-events: none;
+  opacity: 0;
+  animation: scanLines 2s ease-in-out forwards;
+}
+
+@keyframes scanLines {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  30% {
+    opacity: 0.4;
+    transform: translateY(0%);
+  }
+  70% {
+    opacity: 0.2;
+    transform: translateY(0%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loadingScreen">
+  <!-- Stars Background -->
+  <div class="stars"></div>
+  <div class="stars2"></div>
+  <div class="stars3"></div>
+
+  <!-- Terminal Loader -->
+  <div class="terminal-loader">
+    <div class="terminal-header">
+      <div class="terminal-title">Status</div>
+      <div class="terminal-controls">
+        <div class="control close"></div>
+        <div class="control minimize"></div>
+        <div class="control maximize"></div>
+      </div>
+    </div>
+    <div class="text">Loading...</div>
+  </div>
+</div>
+
+<!-- Your original content starts here - ONLY ADDED ANIMATION CLASSES TO SPECIFIC ELEMENTS -->
+<!-- NASA logo top-left -->
+<a href="https://www.spaceappschallenge.org/2025/challenges/meteor-madness/?tab=resources" target="_blank" class="logo-link">
+  <img src="Nasa logo.png" alt="NASA Logo" class="logo logo-left fade-in-element">
+</a>
+
+<!-- Text below NASA logo - NO ANIMATION CLASS -->
+<div class="nasa-text glitch-hover" data-text="// Nasa space apps challenge 2025">
+  // Nasa space apps challenge 2025
+</div>
+<!-- Bhavishya logo top-right -->
+<img src="bhavishya.jpg" alt="Bhavishya Logo" class="logo logo-right fade-in-element">
+
+<!-- Plain text in bottom-right corner -->
+<pre class="team-text" id="waterText">
+┌                                                                                          ┐
+   
+<!-- Team text -->
+<span class="team-text glitch-hover team-bhavishya fade-in-element" data-text="                             //////Team Bhavishya" style="color: grey;">                             //////Team Bhavishya
+</span>
+<span id="interactiveText" style="color: #76ddff;">          We aim to transform cosmic curiosity 
+          into immersive digital experiences that 
+          inspire wonder and exploration.</span>
+
+└                                                                                          ┘
+</pre>
+
+<div id="viewer">
+  <div class="text-overlay" id="textOverlay">
+    <div class="text-side text-left">
+      <div class="text-main fade-in-element" id="textMainLeft">Dive into</div>
+      <div class="text-sub fade-in-element" id="textSubLeft">Asteroids</div>
+    </div>
+    <div class="text-side text-right">
+      <div class="text-main fade-in-element" id="textMainRight">the madness of</div>
+      <div class="text-sub fade-in-element" id="textSubRight">&Meteors</div>
+    </div>
+  </div>
+  
+  <div class="model-container">
+    <!-- 3D model will be rendered here -->
+  </div>
+
+  <!-- Label overlay -->
+  <div class="label-overlay" id="labelOverlay">
+    <!-- North Pole -->
+    <div class="label" id="northLabel">NP_01 // NORTH POLE</div>
+    <div class="text-line" id="northTextLine"></div>
+    <div class="label-line" id="northLine"></div>
+    <div class="anchor-dot" id="northDot"></div>
+
+    <!-- South Pole -->
+    <div class="label" id="southLabel">SP_02 // SOUTH POLE</div>
+    <div class="text-line" id="southTextLine"></div>
+    <div class="label-line" id="southLine"></div>
+    <div class="anchor-dot" id="southDot"></div>
+
+    <!-- Equator -->
+    <div class="label" id="equatorLabel">EQ_03 // EQUATOR</div>
+    <div class="text-line" id="equatorTextLine"></div>
+    <div class="label-line" id="equatorLine"></div>
+    <div class="anchor-dot" id="equatorDot"></div>
+
+    <!-- Asteroid -->
+    <div class="label" id="asteroidLabel">AST_04 // ASTEROID</div>
+    <div class="text-line" id="asteroidTextLine"></div>
+    <div class="label-line" id="asteroidLine"></div>
+    <div class="anchor-dot" id="asteroidDot"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+<script>
+// Loading state management
+let loadingStartTime = Date.now();
+let minimumLoadingTime = 3000; // 3 seconds minimum
+let modelsLoaded = 0;
+let totalModels = 2; // background and asteroid model
+
+// CINEMATIC Camera animation variables
+let isCameraAnimating = false;
+let cameraAnimationStartTime = 0;
+const CAMERA_ANIMATION_DURATION = 4000; // 4 seconds for more cinematic feel
+
+// CINEMATIC Camera positions - starting from high dramatic angle
+const CAMERA_START_POSITION = {
+  x: 0,
+  y: 8,    // Very high - dramatic top-down view
+  z: 12    // Far enough to see the model small
+};
+
+const CAMERA_END_POSITION = {
+  x: 0,
+  y: 0,    // Normal level
+  z: 3     // Default close position
+};
+
+// CINEMATIC: Add camera rotation for more dramatic effect
+const CAMERA_START_ROTATION = {
+  x: -0.5, // Looking slightly downward
+  y: 0,
+  z: 0
+};
+
+const CAMERA_END_ROTATION = {
+  x: 0,    // Looking straight ahead
+  y: 0,
+  z: 0
+};
+
+// NEW: Camera transition effects
+function createCameraTransitionEffects() {
+  // Create space brightening overlay
+  const cameraTransition = document.createElement('div');
+  cameraTransition.className = 'camera-transition-effect';
+  document.body.appendChild(cameraTransition);
+  
+  // Create energy pulse
+  const energyPulse = document.createElement('div');
+  energyPulse.className = 'camera-energy-pulse';
+  document.body.appendChild(energyPulse);
+  
+  // Create scan lines
+  const scanLines = document.createElement('div');
+  scanLines.className = 'scan-lines';
+  document.body.appendChild(scanLines);
+  
+  // Remove elements after animation completes
+  setTimeout(() => {
+    cameraTransition.remove();
+    energyPulse.remove();
+    scanLines.remove();
+  }, 2000);
+}
+
+// Function to check if we can hide the loading screen
+function checkLoadingComplete() {
+  const elapsedTime = Date.now() - loadingStartTime;
+  const allModelsLoaded = modelsLoaded >= totalModels;
+  
+  // Wait until both minimum time has passed AND all models are loaded
+  if (elapsedTime >= minimumLoadingTime && allModelsLoaded) {
+    hideLoadingScreen();
+  } else if (elapsedTime >= minimumLoadingTime + 5000) {
+    // Force hide after 8 seconds total (3s minimum + 5s extra) even if models fail
+    hideLoadingScreen();
+  }
+}
+
+function hideLoadingScreen() {
+  const loadingScreen = document.getElementById('loadingScreen');
+  
+  // Fade out loading screen
+  loadingScreen.classList.add('fade-out');
+  
+  // Show main content but DON'T start text animations yet
+  setTimeout(() => {
+    document.body.classList.add('content-loaded');
+    
+    // Remove loading screen from DOM
+    loadingScreen.style.display = 'none';
+    
+    // Start camera animation with transition effects
+    startCameraWithEffects();
+  }, 800);
+}
+
+function startCameraWithEffects() {
+  // Create camera transition effects
+  createCameraTransitionEffects();
+  
+  // Start camera animation after a brief delay to sync with effects
+  setTimeout(() => {
+    isCameraAnimating = true;
+    cameraAnimationStartTime = Date.now();
+  }, 200);
+}
+
+// Function to start all content animations - SIMPLIFIED
+function startContentAnimations() {
+  // Animate only the fade-in elements (logos and main text)
+  const fadeElements = document.querySelectorAll('.fade-in-element');
+  fadeElements.forEach((element) => {
+    // Add visible class to trigger animation
+    setTimeout(() => {
+      element.classList.add('visible');
+    }, 100);
+  });
+}
+
+// Initialize interactive text hover effect
+function initInteractiveTextHover() {
+  const textEl = document.getElementById('interactiveText');
+  const spans = textEl.querySelectorAll('span');
+
+  // Track mouse movement
+  document.addEventListener('mousemove', (e) => {
+    const rect = textEl.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    spans.forEach(span => {
+      const spanRect = span.getBoundingClientRect();
+      const spanX = spanRect.left + spanRect.width/2 - rect.left;
+      const spanY = spanRect.top + spanRect.height/2 - rect.top;
+
+      const dx = x - spanX;
+      const dy = y - spanY;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+
+      const maxDist = 80;
+      if (dist < maxDist) {
+        const offset = (maxDist - dist)/maxDist * 10; // max 10px
+        const angle = Math.atan2(dy, dx);
+        const tx = Math.cos(angle) * offset;
+        const ty = Math.sin(angle) * offset;
+        span.style.transform = `translate(${tx}px, ${ty}px) scale(1.05)`;
+        span.style.filter = `blur(${(maxDist - dist)/maxDist * 2}px)`;
+      } else {
+        span.style.transform = '';
+        span.style.filter = '';
+      }
+    });
+  });
+}
+
+// --- NEW: Subtle Ice Touch Effect ---
+function createIceTouchEffect(x, y) {
+  // Create the main ice touch circle
+  const iceTouch = document.createElement('div');
+  iceTouch.className = 'ice-touch';
+  iceTouch.style.left = `${x}px`;
+  iceTouch.style.top = `${y}px`;
+  document.body.appendChild(iceTouch);
+  
+  // Create 3-4 subtle frost particles
+  for (let i = 0; i < 4; i++) {
+    setTimeout(() => {
+      const particle = document.createElement('div');
+      particle.className = 'frost-particle';
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
+      
+      // Random direction and small distance
+      const angle = (i / 4) * Math.PI * 2 + (Math.random() * 0.5 - 0.25);
+      const distance = 15 + Math.random() * 10;
+      const tx = Math.cos(angle) * distance;
+      const ty = Math.sin(angle) * distance;
+      
+      particle.style.setProperty('--tx', `${tx}px`);
+      particle.style.setProperty('--ty', `${ty}px`);
+      
+      document.body.appendChild(particle);
+      
+      // Remove particle after animation
+      setTimeout(() => {
+        particle.remove();
+      }, 1000);
+    }, i * 50); // Stagger the particles
+  }
+  
+  // Remove the ice touch element after animation completes
+  setTimeout(() => {
+    iceTouch.remove();
+  }, 800);
+}
+
+// Add click event listener for subtle ice touch effect
+document.addEventListener('click', (e) => {
+  createIceTouchEffect(e.clientX, e.clientY);
+});
+
+// --- Three.js Setup (CINEMATIC CAMERA ANIMATION) ---
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+// SET INITIAL CAMERA POSITION (HIGH DRAMATIC VIEW)
+camera.position.set(CAMERA_START_POSITION.x, CAMERA_START_POSITION.y, CAMERA_START_POSITION.z);
+// Set initial rotation for dramatic look-down
+camera.rotation.x = CAMERA_START_ROTATION.x;
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.querySelector('.model-container').appendChild(renderer.domElement);
+
+// Lights
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.2 * 1.33); 
+scene.add(ambientLight);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5 * 1.33);
+directionalLight.position.set(10, 10, 5);
+scene.add(directionalLight);
+
+// Models & other vars (unchanged)
+let model = null;
+let backgroundScene = null;
+let targetSpeed = 0.007; 
+let currentSpeed = targetSpeed;
+let smoothness = 0.1; 
+const loader = new THREE.GLTFLoader();
+
+loader.load('scene.gltf', gltf => {
+    backgroundScene = gltf.scene;
+    backgroundScene.scale.set(5,5,5);
+    backgroundScene.position.set(0,0,-3);
+    scene.add(backgroundScene);
+
+    createSceneParticles(); // <-- add particles inside GLTF scene
+    modelsLoaded++;
+    checkLoadingComplete();
+}, undefined, err => { 
+    console.warn("Background failed to load:", err);
+    modelsLoaded++;
+    checkLoadingComplete();
+});
+
+// Load asteroid model (unchanged)
+loader.load('model.glb', gltf => {
+    model = gltf.scene;
+    model.scale.set(1,1,1);
+    scene.add(model);
+    modelsLoaded++;
+    checkLoadingComplete();
+}, undefined, error => {
+    console.error('Error loading model, using placeholder.');
+    const geometry = new THREE.IcosahedronGeometry(1, 2);
+    const material = new THREE.MeshStandardMaterial({ color: 0x666666, roughness: 0.8 });
+    model = new THREE.Mesh(geometry, material);
+    scene.add(model);
+    modelsLoaded++;
+    checkLoadingComplete();
+});
+
+// --- Shooting Stars (unchanged) ---
+let shootingStars = [];
+let lastStarTime = performance.now();
+
+function createShootingStars() {
+    const count = Math.floor(Math.random() * 3) + 1;
+    for (let i = 0; i < count; i++) {
+        const length = 1.0;
+        const geometry = new THREE.PlaneGeometry(length, 0.025);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 256; canvas.height = 16;
+        const ctx = canvas.getContext('2d');
+
+        const gradient = ctx.createLinearGradient(256,0,0,0);
+        gradient.addColorStop(0,'white');
+        gradient.addColorStop(1,'transparent');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0,0,256,16);
+
+        const texture = new THREE.CanvasTexture(canvas); 
+        texture.needsUpdate = true;
+
+        const material = new THREE.MeshBasicMaterial({ map: texture, transparent:true, side:THREE.DoubleSide });
+        const star = new THREE.Mesh(geometry, material);
+
+        const xStart = -6;
+        const yStart = Math.random()*6 + 2;
+        const zStart = -2;
+        star.position.set(xStart, yStart, zStart);
+
+        const angle = -Math.PI/6;
+        star.userData = { angle, speed:0.12 + Math.random()*0.05 };
+        star.rotation.z = angle;
+
+        scene.add(star);
+        shootingStars.push(star);
+    }
+    lastStarTime = performance.now();
+}
+
+// --- Interaction and Labels ---
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let isMouseOverModel = false;
+
+// Label elements
+const labelOverlay = document.getElementById('labelOverlay');
+const labels = {
+    north: {
+        label: document.getElementById('northLabel'),
+        textLine: document.getElementById('northTextLine'),
+        labelLine: document.getElementById('northLine'),
+        dot: document.getElementById('northDot')
+    },
+    south: {
+        label: document.getElementById('southLabel'),
+        textLine: document.getElementById('southTextLine'),
+        labelLine: document.getElementById('southLine'),
+        dot: document.getElementById('southDot')
+    },
+    equator: {
+        label: document.getElementById('equatorLabel'),
+        textLine: document.getElementById('equatorTextLine'),
+        labelLine: document.getElementById('equatorLine'),
+        dot: document.getElementById('equatorDot')
+    },
+    asteroid: {
+        label: document.getElementById('asteroidLabel'),
+        textLine: document.getElementById('asteroidTextLine'),
+        labelLine: document.getElementById('asteroidLine'),
+        dot: document.getElementById('asteroidDot')
+    }
+};
+
+// Offsets are small so labels stay near the object (matches your sketch)
+const smallOffsets = {
+    north: { x: 0, y: -70 },
+    south: { x: 0, y: 70 },
+    equator: { x: -90, y: 0 },
+    asteroid: { x: 90, y: 0 }
+};
+
+window.addEventListener('mousemove', (event) => {
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left)/rect.width)*2 - 1;
+    mouse.y = -((event.clientY - rect.top)/rect.height)*2 + 1;
+});
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Utility to compute screen coords of a 3D point on model
+function worldToScreen(pos3) {
+    const p = pos3.clone().applyMatrix4(model.matrixWorld);
+    const projected = p.project(camera);
+    return {
+        x: (projected.x * 0.5 + 0.5) * window.innerWidth,
+        y: (-projected.y * 0.5 + 0.5) * window.innerHeight
+    };
+}
+
+// FIXED: Updated label logic - labels should only appear on hover
+function updateLabels() {
+    // Always hide labels initially, only show on hover
+    if (!model || !isMouseOverModel) {
+        labelOverlay.classList.remove('visible');
+        // hide dots
+        Object.values(labels).forEach(l => { 
+            l.dot.classList.remove('visible'); 
+        });
+        return;
+    }
+
+    // Only show labels when mouse is over the model
+    labelOverlay.classList.add('visible');
+
+    // 3D anchor points on model
+    const anchors = {
+        north: new THREE.Vector3(0, 1, 0),
+        south: new THREE.Vector3(0, -1, 0),
+        equator: new THREE.Vector3(-1, 0, 0),
+        asteroid: new THREE.Vector3(1, 0, 0)
+    };
+
+    const textLineLength = 30;   // small horizontal under text
+    const slantedLen = 24;       // short angled connector length
+
+    Object.keys(labels).forEach(key => {
+        const modelScreen = worldToScreen(anchors[key]);
+        const off = smallOffsets[key];
+
+        // Label position = model position + small offset (keeps label close)
+        const labelX = modelScreen.x + off.x;
+        const labelY = modelScreen.y + off.y;
+
+        // Place label
+        labels[key].label.style.left = `${labelX}px`;
+        labels[key].label.style.top = `${labelY - 10}px`;
+
+        // Decide horizontal text line direction (toward the model)
+        let horizStartX, horizWidth;
+        if (off.x < 0) {
+            // label is left of model -> text-line extends right toward model
+            horizStartX = labelX;
+            horizWidth = textLineLength;
+        } else if (off.x > 0) {
+            // label is right of model -> text-line extends left toward model
+            horizStartX = labelX - textLineLength;
+            horizWidth = textLineLength;
+        } else {
+            // vertical offsets (north/south), pick direction toward center (right)
+            horizStartX = labelX;
+            horizWidth = textLineLength;
+        }
+        labels[key].textLine.style.left = `${horizStartX}px`;
+        labels[key].textLine.style.top  = `${labelY + 6}px`;
+        labels[key].textLine.style.width = `${horizWidth}px`;
+
+        // slanted connector: start at end of horizontal text-line and go a short step toward model
+        const lineStartX = (off.x < 0) ? (horizStartX + horizWidth) : (horizStartX); // end point of horizontal line
+        const lineStartY = labelY + 6;
+
+        // angle from line start to model point
+        const angle = Math.atan2(modelScreen.y - lineStartY, modelScreen.x - lineStartX);
+
+        // place short slanted connector
+        labels[key].labelLine.style.left = `${lineStartX}px`;
+        labels[key].labelLine.style.top  = `${lineStartY}px`;
+        labels[key].labelLine.style.width = `${slantedLen}px`;
+        labels[key].labelLine.style.transform = `rotate(${angle}rad)`;
+
+        // small anchor dot near the actual model point
+        labels[key].dot.style.left = `${modelScreen.x - 3}px`;
+        labels[key].dot.style.top  = `${modelScreen.y - 3}px`;
+        labels[key].dot.classList.add('visible');
+    });
+}
+
+// --- CINEMATIC Camera Animation Function ---
+function updateCameraAnimation() {
+    if (!isCameraAnimating) return;
+    
+    const elapsed = Date.now() - cameraAnimationStartTime;
+    const progress = Math.min(elapsed / CAMERA_ANIMATION_DURATION, 1);
+    
+    // Use easing function for smooth cinematic animation (easeOutCubic)
+    const easedProgress = 1 - Math.pow(1 - progress, 3);
+    
+    // CINEMATIC: Interpolate camera position - moving down and forward
+    camera.position.x = CAMERA_START_POSITION.x + (CAMERA_END_POSITION.x - CAMERA_START_POSITION.x) * easedProgress;
+    camera.position.y = CAMERA_START_POSITION.y + (CAMERA_END_POSITION.y - CAMERA_START_POSITION.y) * easedProgress;
+    camera.position.z = CAMERA_START_POSITION.z + (CAMERA_END_POSITION.z - CAMERA_START_POSITION.z) * easedProgress;
+    
+    // CINEMATIC: Also interpolate camera rotation for more dramatic effect
+    camera.rotation.x = CAMERA_START_ROTATION.x + (CAMERA_END_ROTATION.x - CAMERA_START_ROTATION.x) * easedProgress;
+    
+    // FIXED: Start text animations when camera is closer to default POV (around 60% progress)
+    // This makes the text appear earlier, when the camera is still moving but closer to the model
+    if (progress >= 0.4 && !window.textAnimationsStarted) {
+        startContentAnimations();
+        window.textAnimationsStarted = true;
+    }
+    
+    // End animation when complete
+    if (progress >= 1) {
+        isCameraAnimating = false;
+    }
+}
+
+// --- Animation Loop ---
+function animate(){
+    requestAnimationFrame(animate);
+
+    // Update camera animation if active
+    if (isCameraAnimating) {
+        updateCameraAnimation();
+    }
+
+    // Rotate model
+    if(model){
+        raycaster.setFromCamera(mouse,camera);
+        const intersects = raycaster.intersectObject(model,true);
+        
+        // Update hover state
+        isMouseOverModel = intersects.length > 0;
+
+        if(isMouseOverModel){
+            currentSpeed += (0-currentSpeed)*smoothness;
+        } else {
+            currentSpeed += (targetSpeed-currentSpeed)*smoothness;
+        }
+        model.rotation.y += currentSpeed;
+
+        // Update labels each frame (will show only on hover)
+        updateLabels();
+    }
+
+    // Background parallax (unchanged)
+    if (backgroundScene) {
+        const targetRotY = mouse.x * 0.3;
+        const targetRotX = mouse.y * 0.2;
+
+        backgroundScene.rotation.y += (targetRotY - backgroundScene.rotation.y) * 0.05;
+        backgroundScene.rotation.x += (targetRotX - backgroundScene.rotation.x) * 0.05;
+
+        const maxShift = 1.5;
+        const targetX = THREE.MathUtils.clamp(mouse.x * 1.2, -maxShift, maxShift);
+        const targetY = THREE.MathUtils.clamp(mouse.y * 1.0, -maxShift, maxShift);
+
+        backgroundScene.position.x += (targetX - backgroundScene.position.x) * 0.05;
+        backgroundScene.position.y += (targetY - backgroundScene.position.y) * 0.05;
+    }
+    // Animate dust inside scene.gltf
+    if(sceneParticles){
+        const positions = sceneParticles.geometry.attributes.position.array;
+        for(let i = 0; i < positions.length; i += 3){
+            positions[i+1] -= 0.001 + Math.random()*0.001; // move slowly downward
+            if(positions[i+1] < -5) positions[i+1] = 5; // reset Y when below limit
+        }
+        sceneParticles.geometry.attributes.position.needsUpdate = true;
+    }
+
+    // Shooting stars (unchanged)
+    const now = performance.now();
+    if (now - lastStarTime > 10000) {
+        createShootingStars();
+    }
+
+    shootingStars.forEach((star, index) => {
+        star.position.x += Math.cos(star.userData.angle) * star.userData.speed;
+        star.position.y += Math.sin(star.userData.angle) * star.userData.speed;
+
+        if (star.position.x > 10 || star.position.y < -2) {
+            scene.remove(star);
+            shootingStars.splice(index,1);
+        }
+    });
+
+    renderer.render(scene, camera);
+}
+
+let sceneParticles = null;
+
+function createSceneParticles(){
+    if(!backgroundScene) return;
+
+    const particleCount = 500; // number of dust particles
+    const geometry = new THREE.BufferGeometry();
+    const positions = [];
+
+    for(let i = 0; i < particleCount; i++){
+        positions.push(
+            (Math.random() - 0.5) * 10, // x
+            (Math.random() - 0.5) * 10, // y
+            (Math.random() - 0.5) * 10  // z
+        );
+    }
+
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+    const material = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.05,
+        transparent: true,
+        opacity: 0.8
+    });
+
+    sceneParticles = new THREE.Points(geometry, material);
+    backgroundScene.add(sceneParticles); // attach to GLTF scene
+}
+
+// Initialize interactive text
+const textEl = document.getElementById('interactiveText');
+textEl.innerHTML = textEl.textContent
+  .split('')
+  .map(char => char === '\n' ? '<br>' : `<span>${char}</span>`)
+  .join('');
+
+// Initialize hover effect for interactive text
+initInteractiveTextHover();
+
+// Start animation and check loading periodically
+animate();
+
+// Start checking loading status after minimum time
+setTimeout(checkLoadingComplete, minimumLoadingTime);
+
+// Also check periodically in case models load after minimum time
+const loadingCheckInterval = setInterval(checkLoadingComplete, 500);
+
+// Stop checking once loading is complete
+function stopLoadingCheck() {
+  clearInterval(loadingCheckInterval);
+}
+
+// Update the hideLoadingScreen function to stop the interval
+const originalHideLoadingScreen = hideLoadingScreen;
+hideLoadingScreen = function() {
+  stopLoadingCheck();
+  originalHideLoadingScreen();
+};
+
+// Glitch effect
+const glitchElements = document.querySelectorAll('.glitch-hover');
+
+glitchElements.forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    el.classList.add('glitch-active');
+
+    // Remove after duration (0.15s * 10 = 1.5s)
+    setTimeout(() => {
+      el.classList.remove('glitch-active');
+    }, 500);
+  });
+});
+</script>
+
+<!-- Futuristic Info Icon -->
+<div class="tooltip-container fade-in-element">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 
+         12-5.373 12-12S18.627 0 12 0zm0 22c-5.518 0-10-4.482-10-10s4.482-10 
+         10-10 10 4.482 10 10-4.482 10-10 10zm-1-16h2v6h-2zm0 
+         8h2v2h-2z">
+    </path>
+  </svg>
+
+  <div class="info-tooltip">
+    This site is entirely programmed by AI. Through it, we aim to demonstrate 
+    the capabilities of AI to younger generations and society at large. 
+    We also want to showcase that imagination and creativity have no limits.
+  </div>
+</div>
+
+</body>
+</html>

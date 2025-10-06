@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asteroid 3D Model</title>
+
+  <!-- Google Model Viewer -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at center, #000 70%, #0f172a 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    model-viewer {
+      width: 600px;
+      height: 600px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Hosted asteroid GLB model -->
+  <model-viewer src="https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/DamagedHelmet/glTF-Binary/DamagedHelmet.glb"
+                alt="Asteroid in 3D"
+                auto-rotate
+                rotation-per-second="30deg"
+                camera-controls
+                shadow-intensity="1">
+  </model-viewer>
+</body>
+</html>

@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>METEOR KILLERS - Ultimate Defense Systems</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', 'Arial', sans-serif;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;800;900&display=swap');
+
+        :root {
+            --primary: #00eaff;
+            --secondary: #ff00ff;
+            --accent: #ff6b6b;
+            --dark: #050515;
+            --darker: #000005;
+        }
+
+        body {
+            background: 
+                radial-gradient(ellipse at center, var(--dark) 0%, var(--darker) 70%, #000 100%),
+                linear-gradient(135deg, #0a0a2a 0%, #1a1a4a 50%, #0a0a2a 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Particle System */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Cosmic Elements */
+        .cosmic-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .pulsar {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 30px 8px var(--primary);
+            animation: pulsarGlow 4s infinite alternate;
+            filter: blur(1px);
+        }
+
+        .energy-orb {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--secondary) 0%, transparent 70%);
+            opacity: 0.1;
+            animation: energyPulse 8s infinite alternate;
+            filter: blur(20px);
+        }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.3;
+            animation: scan 6s linear infinite;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Enhanced Header */
+        .header {
+            text-align: center;
+            padding: 60px 0 40px;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .title-wrapper {
+            display: inline-block;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: titleEntrance 1.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+
+        .title {
+            font-size: 5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent), var(--primary));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 
+                0 0 60px rgba(0, 234, 255, 0.8),
+                0 0 120px rgba(255, 0, 255, 0.4);
+            margin-bottom: 20px;
+            letter-spacing: 4px;
+            animation: titleShift 8s ease-in-out infinite, titleFloat 6s ease-in-out infinite;
+            position: relative;
+            transform: translateZ(50px);
+        }
+
+        .title::before {
+            content: 'METEOR KILLERS';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: linear-gradient(45deg, transparent, rgba(0, 234, 255, 0.1), transparent);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            z-index: -1;
+            filter: blur(3px);
+        }
+
+        .subtitle {
+            font-size: 1.6rem;
+            color: #a0d2ff;
+            opacity: 0.9;
+            margin-top: 25px;
+            text-shadow: 0 0 20px rgba(160, 210, 255, 0.7);
+            letter-spacing: 3px;
+            animation: subtitlePulse 4s ease-in-out infinite;
+            position: relative;
+            transform: translateZ(30px);
+        }
+
+        .subtitle::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), var(--primary), transparent);
+            border-radius: 2px;
+        }
+
+        /* Main Content Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 50px;
+            margin-top: 40px;
+            perspective: 2000px;
+        }
+
+        /* Enhanced Model Display */
+        .model-display {
+            position: relative;
+            height: 650px;
+            border-radius: 30px;
+            overflow: hidden;
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(0, 234, 255, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(255, 0, 255, 0.15) 0%, transparent 50%);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 0 80px rgba(0, 234, 255, 0.4),
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transform-style: preserve-3d;
+            animation: containerFloat 10s ease-in-out infinite;
+            backdrop-filter: blur(20px);
+        }
+
+        .model-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 50px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .system-icon {
+            font-size: 12rem;
+            margin-bottom: 40px;
+            color: var(--accent);
+            text-shadow: 
+                0 0 40px rgba(255, 107, 107, 1),
+                0 0 80px rgba(255, 107, 107, 0.6),
+                0 0 120px rgba(255, 107, 107, 0.3);
+            animation: iconFloat 5s ease-in-out infinite, iconPulse 3s ease-in-out infinite alternate;
+            position: relative;
+            filter: drop-shadow(0 0 15px rgba(255, 107, 107, 0.8));
+            transform: translateZ(60px);
+        }
+
+        .system-icon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 107, 107, 0.3) 0%, transparent 70%);
+            animation: iconOrbit 6s linear infinite;
+            z-index: -1;
+        }
+
+        .system-name {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            color: var(--primary);
+            text-shadow: 0 0 30px rgba(0, 234, 255, 1);
+            font-weight: 700;
+            letter-spacing: 2px;
+            animation: textGlow 4s ease-in-out infinite alternate;
+            transform: translateZ(40px);
+        }
+
+        .system-description {
+            font-size: 1.4rem;
+            line-height: 1.8;
+            max-width: 90%;
+            color: #ccddff;
+            text-shadow: 0 0 15px rgba(204, 221, 255, 0.4);
+            transform: translateZ(30px);
+        }
+
+        /* Enhanced Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 35px;
+            height: fit-content;
+        }
+
+        .card-3d {
+            perspective: 1200px;
+            height: 200px;
+        }
+
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+            border-radius: 25px;
+        }
+
+        .card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-inner:hover:not(.flipped) {
+            transform: translateY(-15px) rotateX(8deg) scale(1.02);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 25px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 234, 255, 0.15) 0%, transparent 50%),
+                rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 15px 50px rgba(0, 0, 0, 0.5),
+                0 0 25px rgba(0, 234, 255, 0.3);
+            transition: all 0.4s ease;
+        }
+
+        .card-front {
+            color: #fff;
+        }
+
+        .card-back {
+            color: #fff;
+            transform: rotateY(180deg);
+        }
+
+        .card-icon {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+            text-shadow: 0 0 20px currentColor;
+            transform: translateZ(20px);
+        }
+
+        .card-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+            z-index: -1;
+            animation: iconOrbit 5s linear infinite reverse;
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--primary);
+            text-shadow: 0 0 15px rgba(0, 234, 255, 0.7);
+            transform: translateZ(15px);
+        }
+
+        .card-description {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #ccddff;
+            transform: translateZ(10px);
+        }
+
+        /* Enhanced Stats */
+        .stat-container {
+            margin: 20px 0;
+            transform: translateZ(10px);
+        }
+
+        .stat-bar {
+            width: 100%;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 7px;
+            margin: 15px 0;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-fill {
+            height: 100%;
+            border-radius: 7px;
+            transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            box-shadow: 
+                0 0 15px rgba(255, 255, 255, 0.6),
+                inset 0 2px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        .stat-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+            animation: statShimmer 2.5s infinite;
+        }
+
+        .impact-fill { 
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e, #ff6b6b);
+            background-size: 200% 100%;
+            animation: gradientShift 4s ease infinite;
+        }
+        .range-fill { 
+            background: linear-gradient(90deg, #4ecdc4, #88f7f0, #4ecdc4);
+            background-size: 200% 100%;
+            animation: gradientShift 4s ease infinite;
+        }
+        .prep-fill { 
+            background: linear-gradient(90deg, #ffe66d, #fff5b1, #ffe66d);
+            background-size: 200% 100%;
+            animation: gradientShift 4s ease infinite;
+        }
+
+        .stat-value {
+            font-size: 1rem;
+            color: #ccddff;
+            margin-top: 10px;
+            text-align: center;
+            text-shadow: 0 0 8px rgba(204, 221, 255, 0.6);
+            transform: translateZ(5px);
+        }
+
+        /* Enhanced Tech Specs */
+        .tech-specs-advanced {
+            margin-top: 50px;
+            padding: 40px;
+            border-radius: 25px;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 234, 255, 0.15) 0%, transparent 50%),
+                rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(0, 234, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .tech-specs-advanced::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--primary));
+            background-size: 200% 100%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        .specs-header {
+            color: var(--primary);
+            margin-bottom: 35px;
+            font-size: 2.2rem;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(0, 234, 255, 0.8);
+            font-weight: 700;
+            letter-spacing: 2px;
+            transform: translateZ(30px);
+        }
+
+        .specs-grid-3d {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            perspective: 1000px;
+        }
+
+        .spec-item-3d {
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .spec-item-3d::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 234, 255, 0.15), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .spec-item-3d:hover {
+            transform: translateY(-8px) scale(1.03) rotateX(5deg);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(0, 234, 255, 0.4);
+            border-color: rgba(0, 234, 255, 0.5);
+        }
+
+        .spec-item-3d:hover::before {
+            left: 100%;
+        }
+
+        .spec-label-3d {
+            font-weight: bold;
+            color: #a0d2ff;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            text-shadow: 0 0 8px rgba(160, 210, 255, 0.6);
+            transform: translateZ(15px);
+        }
+
+        .spec-value-3d {
+            color: #ccddff;
+            font-size: 1.15rem;
+            transform: translateZ(10px);
+        }
+
+        /* Enhanced Navigation */
+        .nav-system {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 50px;
+            position: relative;
+        }
+
+        .nav-arrow-3d {
+            font-size: 3rem;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 25px;
+            border-radius: 50%;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            background: 
+                radial-gradient(circle at center, rgba(0, 234, 255, 0.25) 0%, transparent 70%),
+                rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                0 15px 40px rgba(0, 0, 0, 0.5),
+                0 0 25px rgba(0, 234, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .nav-arrow-3d::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .nav-arrow-3d:hover {
+            background: rgba(0, 234, 255, 0.4);
+            color: var(--secondary);
+            transform: scale(1.2) rotate(10deg);
+            box-shadow: 
+                0 0 40px rgba(0, 234, 255, 0.8),
+                0 0 70px rgba(255, 0, 255, 0.5);
+        }
+
+        .nav-arrow-3d:hover::before {
+            left: 100%;
+        }
+
+        .nav-indicators-3d {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 35px;
+        }
+
+        .nav-dot-3d {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .nav-dot-3d::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-dot-3d.active {
+            background: var(--primary);
+            transform: scale(1.5) translateZ(10px);
+            box-shadow: 
+                0 0 20px rgba(0, 234, 255, 1),
+                0 0 40px rgba(0, 234, 255, 0.5);
+        }
+
+        .nav-dot-3d:hover {
+            background: var(--secondary);
+            transform: scale(1.4) translateZ(5px);
+        }
+
+        .nav-dot-3d:hover::before {
+            left: 100%;
+        }
+
+        /* History Button */
+        .history-button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+            margin-bottom: 30px;
+        }
+
+        .history-button {
+            padding: 20px 50px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            background: 
+                radial-gradient(circle at center, rgba(0, 234, 255, 0.25) 0%, transparent 70%),
+                rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px);
+            border: 2px solid rgba(0, 234, 255, 0.5);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(0, 234, 255, 0.8);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(0, 234, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .history-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 234, 255, 0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .history-button:hover {
+            background: rgba(0, 234, 255, 0.3);
+            color: var(--secondary);
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 
+                0 15px 40px rgba(0, 0, 0, 0.6),
+                0 0 30px rgba(0, 234, 255, 0.6),
+                0 0 50px rgba(255, 0, 255, 0.4);
+        }
+
+        .history-button:hover::before {
+            left: 100%;
+        }
+
+        .history-button:active {
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        /* Particle System Container */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Advanced Animations */
+        @keyframes titleEntrance {
+            0% { 
+                opacity: 0;
+                transform: translateY(100px) rotateX(90deg) scale(0.5);
+            }
+            100% { 
+                opacity: 1;
+                transform: translateY(0) rotateX(0) scale(1);
+            }
+        }
+
+        @keyframes titleShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes titleFloat {
+            0%, 100% { transform: translateZ(50px) translateY(0px); }
+            50% { transform: translateZ(50px) translateY(-15px); }
+        }
+
+        @keyframes subtitlePulse {
+            0%, 100% { opacity: 0.8; transform: translateZ(30px) scale(1); }
+            50% { opacity: 1; transform: translateZ(30px) scale(1.03); }
+        }
+
+        @keyframes containerFloat {
+            0%, 100% { transform: translateY(0px) rotateX(0deg); }
+            50% { transform: translateY(-20px) rotateX(3deg); }
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateZ(60px) translateY(0px) rotate(0deg); }
+            50% { transform: translateZ(60px) translateY(-25px) rotate(8deg); }
+        }
+
+        @keyframes iconPulse {
+            0% { transform: translateZ(60px) scale(1); }
+            100% { transform: translateZ(60px) scale(1.15); }
+        }
+
+        @keyframes iconOrbit {
+            0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            100% { transform: translate(-50%, -50%) rotate(360deg) scale(1.2); }
+        }
+
+        @keyframes textGlow {
+            0% { text-shadow: 0 0 30px rgba(0, 234, 255, 0.8); }
+            100% { text-shadow: 0 0 40px rgba(0, 234, 255, 1.2), 0 0 60px rgba(0, 234, 255, 0.6); }
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes statShimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes pulsarGlow {
+            0%, 100% { 
+                opacity: 0.4;
+                box-shadow: 0 0 25px 6px var(--primary);
+            }
+            50% { 
+                opacity: 1;
+                box-shadow: 0 0 40px 12px var(--primary), 0 0 70px 20px var(--primary);
+            }
+        }
+
+        @keyframes energyPulse {
+            0% { transform: scale(1); opacity: 0.1; }
+            100% { transform: scale(1.5); opacity: 0.05; }
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-100vh); }
+            100% { transform: translateY(100vh); }
+        }
+
+        .fade-in-3d {
+            animation: fadeIn3D 1s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+
+        @keyframes fadeIn3D {
+            from { 
+                opacity: 0; 
+                transform: translateY(50px) rotateX(20deg) scale(0.9); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) rotateX(0) scale(1); 
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1400px) {
+            .main-grid {
+                grid-template-columns: 1.5fr 1fr;
+                gap: 40px;
+            }
+            
+            .title {
+                font-size: 4rem;
+            }
+            
+            .model-display {
+                height: 600px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .title {
+                font-size: 3.5rem;
+            }
+            
+            .system-icon {
+                font-size: 10rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 2.8rem;
+            }
+            
+            .system-icon {
+                font-size: 8rem;
+            }
+            
+            .nav-arrow-3d {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+            
+            .specs-grid-3d {
+                grid-template-columns: 1fr;
+            }
+            
+            .history-button {
+                padding: 15px 30px;
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus styles */
+        .nav-arrow-3d:focus,
+        .card-inner:focus,
+        .history-button:focus {
+            outline: 4px solid var(--secondary);
+            outline-offset: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Particle System -->
+    <div id="particles-js"></div>
+
+    <!-- Cosmic Elements -->
+    <div class="cosmic-elements">
+        <div class="pulsar" style="top: 15%; left: 8%; animation-delay: 0s;"></div>
+        <div class="pulsar" style="top: 65%; left: 85%; animation-delay: 2s;"></div>
+        <div class="pulsar" style="top: 40%; left: 25%; animation-delay: 4s;"></div>
+        <div class="energy-orb" style="top: 20%; left: 70%;"></div>
+        <div class="energy-orb" style="top: 70%; left: 20%;"></div>
+        <div class="scan-line" style="animation-delay: 0s;"></div>
+        <div class="scan-line" style="animation-delay: 3s;"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="title-wrapper">
+                <h1 class="title">METEOR KILLERS</h1>
+                <p class="subtitle">Advanced Planetary Defense System</p>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Model Display -->
+            <div class="model-display">
+                <div class="model-content" id="modelDisplay">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="cards-grid">
+                <!-- Impact Card -->
+                <div class="card-3d">
+                    <div class="card-inner" id="impactCard" tabindex="0" role="button" aria-label="Impact card, click to flip">
+                        <div class="card-face card-front">
+                            <div class="card-icon">
+                                <i class="fas fa-explosion" aria-hidden="true"></i>
+                            </div>
+                            <h3 class="card-title">Impact</h3>
+                            <div class="stat-container">
+                                <div class="stat-bar">
+                                    <div class="stat-fill impact-fill" id="impactFill" style="width: 90%"></div>
+                                </div>
+                                <div class="stat-value" id="impactValue">Extreme Destructive Power</div>
+                            </div>
+                        </div>
+                        <div class="card-face card-back">
+                            <h3 class="card-title">Impact Analysis</h3>
+                            <p class="card-description" id="impactDescription">
+                                <!-- Dynamic content -->
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Range Card -->
+                <div class="card-3d">
+                    <div class="card-inner" id="rangeCard" tabindex="0" role="button" aria-label="Range card, click to flip">
+                        <div class="card-face card-front">
+                            <div class="card-icon">
+                                <i class="fas fa-satellite-dish" aria-hidden="true"></i>
+                            </div>
+                            <h3 class="card-title">Range</h3>
+                            <div class="stat-container">
+                                <div class="stat-bar">
+                                    <div class="stat-fill range-fill" id="rangeFill" style="width: 70%"></div>
+                                </div>
+                                <div class="stat-value" id="rangeValue">Medium Operational Range</div>
+                            </div>
+                        </div>
+                        <div class="card-face card-back">
+                            <h3 class="card-title">Range & Deployment</h3>
+                            <p class="card-description" id="rangeDescription">
+                                <!-- Dynamic content -->
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preparation Card -->
+                <div class="card-3d">
+                    <div class="card-inner" id="preparationCard" tabindex="0" role="button" aria-label="Preparation card, click to flip">
+                        <div class="card-face card-front">
+                            <div class="card-icon">
+                                <i class="fas fa-clock" aria-hidden="true"></i>
+                            </div>
+                            <h3 class="card-title">Preparation Time</h3>
+                            <div class="stat-container">
+                                <div class="stat-bar">
+                                    <div class="stat-fill prep-fill" id="prepFill" style="width: 40%"></div>
+                                </div>
+                                <div class="stat-value" id="prepValue">Quick Deployment</div>
+                            </div>
+                        </div>
+                        <div class="card-face card-back">
+                            <h3 class="card-title">Preparation & Response</h3>
+                            <p class="card-description" id="prepDescription">
+                                <!-- Dynamic content -->
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Specifications -->
+        <div class="tech-specs-advanced" id="techSpecs">
+            <h3 class="specs-header">Technical Specifications</h3>
+            <div class="specs-grid-3d" id="specGrid">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+
+        <!-- Navigation System -->
+        <div class="nav-system">
+            <div class="nav-arrow-3d left-arrow" onclick="navigateLeft()" tabindex="0" role="button" aria-label="Previous defense system">
+                <i class="fas fa-chevron-left" aria-hidden="true"></i>
+            </div>
+            <div class="nav-arrow-3d right-arrow" onclick="navigateRight()" tabindex="0" role="button" aria-label="Next defense system">
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+            </div>
+        </div>
+
+        <!-- Navigation Indicators -->
+        <div class="nav-indicators-3d" id="navIndicators">
+            <!-- Dynamic content -->
+        </div>
+
+        <!-- History Button -->
+        <div class="history-button-container">
+            <button class="history-button" onclick="redirectToHistory()" tabindex="0" aria-label="View asteroid history">
+                <i class="fas fa-history" aria-hidden="true"></i> View Asteroid History
+            </button>
+        </div>
+    </div>
+
+    <!-- Particle.js Library -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Audio elements
+        const changeModelSound = new Audio("destroying a asteroid/change model.mp3");
+        const hoverSound = new Audio("destroying a asteroid/hover, destroy aasteroid.mp3");
+        const pageTurnSound = new Audio("destroying a asteroid/page turn.mp3");
+        const pageTurnReturnSound = new Audio("destroying a asteroid/page turn return.mp3");
+        const casualClickSound = new Audio("destroying a asteroid/casual click.mp3");
+        const backgroundMusic = new Audio("destroying a asteroid/background music.mp3");
+
+        // Background music settings
+        backgroundMusic.loop = true;
+        backgroundMusic.volume = 0.7;
+
+        // Initialize particle system
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 150, density: { enable: true, value_area: 800 } },
+                color: { value: "#00eaff" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5, random: true },
+                size: { value: 3, random: true },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#00eaff",
+                    opacity: 0.2,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "repulse" },
+                    onclick: { enable: true, mode: "push" },
+                    resize: true
+                }
+            }
+        });
+
+        // Defense system data
+        const defenseSystems = [
+            {
+                name: "Nuke Defense System",
+                icon: "fas fa-bomb",
+                description: "Nuclear explosives deliver massive energy to fragment or deflect large asteroids. Most effective for short-warning scenarios with large objects.",
+                stats: {
+                    impact: 95,
+                    range: 70,
+                    preparation: 30
+                },
+                impactDesc: "Extremely high destructive capability. Can fragment asteroids up to 1km in diameter. Creates multiple smaller, manageable pieces. Nuclear detonation delivers energy equivalent to 1-10 megatons of TNT, sufficient to vaporize or significantly alter the trajectory of threatening objects.",
+                rangeDesc: "Medium operational range of 50,000-500,000 km. Requires precise delivery systems with advanced guidance. Effective within Earth-Moon system and near-Earth space. Limited by radiation hazards and political constraints on nuclear weapons in space.",
+                prepDesc: "Rapid deployment possible (2-4 weeks). Requires nuclear payload delivery system. Minimal planetary alignment constraints. Existing ICBM infrastructure can be adapted for asteroid interception missions with minimal modifications.",
+                specs: {
+                    "Energy Output": "1-10 Megatons TNT equivalent",
+                    "Effective Range": "50,000 - 500,000 km",
+                    "Deployment Time": "2-4 weeks",
+                    "Asteroid Size": "Up to 1 km diameter",
+                    "Delivery System": "Modified ICBM/Heavy Launch Vehicle",
+                    "Accuracy": "± 100 meters at 100,000 km",
+                    "Collateral Risk": "High (radiation, fragmentation)",
+                    "Cost Estimate": "$500M - $2B per mission"
+                }
+            },
+            {
+                name: "Kinetic Impactors",
+                icon: "fas fa-satellite",
+                description: "Kinetic impactors collide with asteroids at high velocity, gradually altering trajectory through momentum transfer over multiple impacts.",
+                stats: {
+                    impact: 60,
+                    range: 85,
+                    preparation: 70
+                },
+                impactDesc: "Moderate impact energy. Effective for asteroids up to 500m. Requires precise targeting for maximum momentum transfer. Impact velocity of 10-30 km/s delivers significant kinetic energy without explosive materials. Multiple impacts can gradually adjust trajectory over time.",
+                rangeDesc: "High operational range up to 1,000,000 km. Can be deployed throughout the inner solar system. Requires advanced navigation and targeting systems. Solar electric propulsion enables extended missions to distant asteroids.",
+                prepDesc: "Medium preparation time (6-18 months). Requires spacecraft construction, testing, and precise orbital calculations. Mission planning involves complex orbital mechanics and launch window optimization. International collaboration often required for funding and expertise.",
+                specs: {
+                    "Impact Velocity": "10-30 km/s",
+                    "Effective Range": "Up to 1,000,000 km",
+                    "Deployment Time": "6-18 months",
+                    "Asteroid Size": "Up to 500m diameter",
+                    "Impactor Mass": "500 - 5,000 kg",
+                    "Accuracy": "± 10 meters at 100,000 km",
+                    "Collateral Risk": "Low (controlled impact)",
+                    "Cost Estimate": "$300M - $800M per mission"
+                }
+            },
+            {
+                name: "Laser Ablation",
+                icon: "fas fa-burn",
+                description: "Focused laser arrays vaporize surface material, creating jet thrust that pushes asteroids off course. Ideal for long-term deflection.",
+                stats: {
+                    impact: 40,
+                    range: 50,
+                    preparation: 85
+                },
+                impactDesc: "Low immediate impact. Gradual surface erosion creates consistent thrust. Best for small to medium asteroids. Laser power of 100kW-10MW focused on asteroid surface creates plasma jets that provide continuous, controllable thrust over extended periods.",
+                rangeDesc: "Medium operational range of 10,000-100,000 km. Limited by laser beam divergence and power requirements. Most effective at relatively close distances where high power density can be maintained on target.",
+                prepDesc: "Long preparation required (2-5 years). Needs orbital laser platforms and extensive power systems. Requires development of space-based power generation (solar/nuclear) and advanced cooling systems for high-power lasers.",
+                specs: {
+                    "Laser Power": "100 kW - 10 MW",
+                    "Effective Range": "10,000 - 100,000 km",
+                    "Deployment Time": "2-5 years",
+                    "Asteroid Size": "Up to 300m diameter",
+                    "Power Source": "Solar/Nuclear Reactor",
+                    "Thrust Duration": "Months to years",
+                    "Accuracy": "± 1 meter at 10,000 km",
+                    "Cost Estimate": "$1B - $5B system development"
+                }
+            },
+            {
+                name: "Gravity Tractor",
+                icon: "fas fa-magnet",
+                description: "Spacecraft uses gravitational attraction to slowly pull asteroids off course. Zero physical contact method for delicate operations.",
+                stats: {
+                    impact: 20,
+                    range: 30,
+                    preparation: 90
+                },
+                impactDesc: "Minimal physical impact. Preserves asteroid integrity. Suitable for rubble-pile asteroids that might fragment. Uses spacecraft mass (10-20 tons) positioned 50-200m from asteroid to exert gravitational pull of 0.1-1 Newton, gradually altering trajectory over months or years.",
+                rangeDesc: "Limited operational range requiring close proximity (50-200m). Must maintain precise station-keeping relative to asteroid. Effective throughout solar system but requires long transit times to reach target.",
+                prepDesc: "Very long lead time (5-15 years). Perfect for well-characterized long-term threats. Requires advanced autonomous navigation and propulsion systems capable of maintaining precise position for extended periods near irregularly shaped objects.",
+                specs: {
+                    "Gravitational Force": "0.1 - 1 Newton",
+                    "Operating Distance": "50 - 200 meters",
+                    "Deployment Time": "5-15 years",
+                    "Asteroid Size": "Up to 200m diameter",
+                    "Spacecraft Mass": "10 - 20 metric tons",
+                    "Thrust Duration": "Months to decades",
+                    "Propulsion": "Ion/Plasma thrusters",
+                    "Cost Estimate": "$800M - $2B per mission"
+                }
+            }
+        ];
+
+        let currentSystem = 0;
+        let backgroundMusicStarted = false;
+
+        // Initialize the display
+        function initializeDisplay() {
+            updateSystemDisplay();
+            createNavIndicators();
+            
+            // Add card flip functionality
+            document.querySelectorAll('.card-inner').forEach(card => {
+                card.addEventListener('click', function() {
+                    const wasFlipped = this.classList.contains('flipped');
+                    this.classList.toggle('flipped');
+                    
+                    // Play appropriate sound based on flip state
+                    if (this.classList.contains('flipped')) {
+                        playSound(pageTurnSound);
+                    } else {
+                        playSound(pageTurnReturnSound);
+                    }
+                });
+                
+                // Add keyboard support for card flipping
+                card.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const wasFlipped = this.classList.contains('flipped');
+                        this.classList.toggle('flipped');
+                        
+                        // Play appropriate sound based on flip state
+                        if (this.classList.contains('flipped')) {
+                            playSound(pageTurnSound);
+                        } else {
+                            playSound(pageTurnReturnSound);
+                        }
+                    }
+                });
+            });
+            
+            // Add hover sound to elements with hover effects
+            addHoverSounds();
+            
+            // Add click sound for general clicks
+            document.addEventListener('click', function(e) {
+                // Check if the click was on an element that should play a different sound
+                const isNavArrow = e.target.closest('.nav-arrow-3d');
+                const isCard = e.target.closest('.card-inner');
+                const isNavDot = e.target.closest('.nav-dot-3d');
+                
+                // If not a special element, play casual click sound
+                if (!isNavArrow && !isCard && !isNavDot) {
+                    playSound(casualClickSound);
+                }
+                
+                // Start background music on first click
+                if (!backgroundMusicStarted) {
+                    playBackgroundMusic();
+                }
+            });
+            
+            // Add hover sound to history button
+            document.querySelector('.history-button').addEventListener('mouseenter', () => playSound(hoverSound));
+        }
+
+        // Play sound function
+        function playSound(sound) {
+            // Reset the sound to start from beginning
+            sound.currentTime = 0;
+            sound.play().catch(e => {
+                // Ignore errors if audio can't play (like user hasn't interacted with page yet)
+                console.log("Audio play failed:", e);
+            });
+        }
+
+        // Play background music
+        function playBackgroundMusic() {
+            backgroundMusic.play().then(() => {
+                backgroundMusicStarted = true;
+            }).catch(e => {
+                console.log("Background music play failed:", e);
+            });
+        }
+
+        // Add hover sounds to elements
+        function addHoverSounds() {
+            // Add to navigation arrows
+            document.querySelectorAll('.nav-arrow-3d').forEach(arrow => {
+                arrow.addEventListener('mouseenter', () => playSound(hoverSound));
+            });
+            
+            // Add to cards
+            document.querySelectorAll('.card-3d').forEach(card => {
+                card.addEventListener('mouseenter', () => playSound(hoverSound));
+            });
+            
+            // Add to navigation dots (they're created dynamically, so we'll handle them separately)
+            // We'll update this in createNavIndicators
+        }
+
+        // Update all display elements for current system
+        function updateSystemDisplay() {
+            const system = defenseSystems[currentSystem];
+            const modelDisplay = document.getElementById('modelDisplay');
+            const specGrid = document.getElementById('specGrid');
+            
+            // Add fade animation
+            modelDisplay.classList.remove('fade-in-3d');
+            void modelDisplay.offsetWidth; // Trigger reflow
+            modelDisplay.classList.add('fade-in-3d');
+            
+            // Update main display
+            modelDisplay.innerHTML = `
+                <div class="system-icon">
+                    <i class="${system.icon}" aria-hidden="true"></i>
+                </div>
+                <h2 class="system-name">${system.name}</h2>
+                <p class="system-description">${system.description}</p>
+            `;
+            
+            // Update impact card
+            document.getElementById('impactFill').style.width = `${system.stats.impact}%`;
+            document.getElementById('impactValue').textContent = getImpactLabel(system.stats.impact);
+            document.getElementById('impactDescription').textContent = system.impactDesc;
+            
+            // Update range card
+            document.getElementById('rangeFill').style.width = `${system.stats.range}%`;
+            document.getElementById('rangeValue').textContent = getRangeLabel(system.stats.range);
+            document.getElementById('rangeDescription').textContent = system.rangeDesc;
+            
+            // Update preparation card
+            document.getElementById('prepFill').style.width = `${system.stats.preparation}%`;
+            document.getElementById('prepValue').textContent = getPrepLabel(system.stats.preparation);
+            document.getElementById('prepDescription').textContent = system.prepDesc;
+            
+            // Update technical specifications
+            specGrid.innerHTML = '';
+            for (const [key, value] of Object.entries(system.specs)) {
+                const specItem = document.createElement('div');
+                specItem.className = 'spec-item-3d';
+                specItem.innerHTML = `
+                    <div class="spec-label-3d">${key}</div>
+                    <div class="spec-value-3d">${value}</div>
+                `;
+                specGrid.appendChild(specItem);
+            }
+            
+            // Update navigation indicators
+            updateNavIndicators();
+            
+            // Update page title for screen readers
+            document.title = `Meteor Killers - ${system.name}`;
+        }
+
+        // Helper functions for stat labels
+        function getImpactLabel(value) {
+            if (value >= 80) return "Extreme Impact";
+            if (value >= 60) return "High Impact";
+            if (value >= 40) return "Medium Impact";
+            return "Low Impact";
+        }
+
+        function getRangeLabel(value) {
+            if (value >= 80) return "Long Range";
+            if (value >= 60) return "Medium Range";
+            if (value >= 40) return "Short Range";
+            return "Very Short Range";
+        }
+
+        function getPrepLabel(value) {
+            if (value >= 80) return "Long Preparation";
+            if (value >= 60) return "Medium Preparation";
+            if (value >= 40) return "Quick Preparation";
+            return "Instant Deployment";
+        }
+
+        // Navigation functions
+        function navigateLeft() {
+            currentSystem = (currentSystem - 1 + defenseSystems.length) % defenseSystems.length;
+            updateSystemDisplay();
+            resetCards();
+            playSound(changeModelSound);
+        }
+
+        function navigateRight() {
+            currentSystem = (currentSystem + 1) % defenseSystems.length;
+            updateSystemDisplay();
+            resetCards();
+            playSound(changeModelSound);
+        }
+
+        function goToSystem(index) {
+            currentSystem = index;
+            updateSystemDisplay();
+            resetCards();
+            playSound(changeModelSound);
+        }
+
+        function resetCards() {
+            document.querySelectorAll('.card-inner').forEach(card => {
+                card.classList.remove('flipped');
+            });
+        }
+
+        // Navigation indicators
+        function createNavIndicators() {
+            const container = document.getElementById('navIndicators');
+            container.innerHTML = '';
+            
+            defenseSystems.forEach((system, index) => {
+                const dot = document.createElement('div');
+                dot.className = `nav-dot-3d ${index === currentSystem ? 'active' : ''}`;
+                dot.setAttribute('tabindex', '0');
+                dot.setAttribute('role', 'button');
+                dot.setAttribute('aria-label', `View ${system.name}`);
+                dot.onclick = () => goToSystem(index);
+                
+                // Add hover sound
+                dot.addEventListener('mouseenter', () => playSound(hoverSound));
+                
+                // Add keyboard support for dots
+                dot.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        goToSystem(index);
+                    }
+                });
+                
+                container.appendChild(dot);
+            });
+        }
+
+        function updateNavIndicators() {
+            const dots = document.querySelectorAll('.nav-dot-3d');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSystem);
+            });
+        }
+
+        // Redirect to history page
+        function redirectToHistory() {
+            playSound(casualClickSound);
+            window.location.href = "Historyonasteroids5.html";
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft') navigateLeft();
+            else if (event.key === 'ArrowRight') navigateRight();
+            else if (event.key === 'Escape') resetCards();
+        });
+
+        // Initialize on load
+        window.addEventListener('load', initializeDisplay);
+    </script>
+</body>
+</html>

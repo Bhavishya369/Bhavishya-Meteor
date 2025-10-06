@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroid Detection Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #7ed6ff;
+            --primary-glow: rgba(126, 214, 255, 0.7);
+            --secondary-color: #ff6b8b;
+            --tertiary-color: #9d4edd;
+            --bg-dark: #0a0a1a;
+            --bg-darker: #050510;
+            --text-light: #cbd5e0;
+            --text-lighter: #a0c8e0;
+            --glass-dark: rgba(5, 7, 15, 0.4);
+            --glass-darker: rgba(8, 10, 20, 0.5);
+            --border-dark: rgba(40, 50, 70, 0.4);
+            --border-light: rgba(80, 120, 180, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Enhanced Black glass morphism */
+        .glass {
+            background: var(--glass-dark);
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border: 1px solid var(--border-dark);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(10, 20, 40, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform, box-shadow;
+        }
+
+        /* Liquid glass effect for all cards */
+        .glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(135deg, 
+                    rgba(30, 40, 60, 0.4) 0%, 
+                    transparent 25%,
+                    transparent 75%,
+                    rgba(20, 30, 50, 0.2) 100%);
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 1;
+            animation: liquid-shift 8s ease-in-out infinite;
+        }
+
+        .glass::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(70, 100, 150, 0.2), 
+                transparent);
+            transition: left 1.2s ease;
+            z-index: 1;
+        }
+
+        .glass:hover::after {
+            left: 100%;
+        }
+
+        .glass-strong {
+            background: var(--glass-darker);
+            backdrop-filter: blur(50px) saturate(250%);
+            -webkit-backdrop-filter: blur(50px) saturate(250%);
+            border: 1px solid rgba(50, 70, 100, 0.5);
+            box-shadow: 
+                0 12px 50px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+                0 0 60px rgba(15, 25, 45, 0.4);
+        }
+
+        /* Animated background with stars and meteors */
+        .space-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.6), transparent);
+            background-repeat: repeat;
+            background-size: 200px 150px;
+            animation: drift 100s linear infinite;
+        }
+
+        .meteor {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1), 0 0 10px 2px #fff;
+            animation: meteor-fall linear forwards;
+        }
+
+        .meteor::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(90deg, #fff, transparent);
+        }
+
+        @keyframes meteor-fall {
+            0% {
+                transform: translateX(0) translateY(0) rotate(45deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(500px) translateY(500px) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes drift {
+            0% {
+                background-position: 0px 0px;
+            }
+            100% {
+                background-position: 400px 300px;
+            }
+        }
+
+        @keyframes liquid-shift {
+            0%, 100% {
+                background-position: 0% 0%;
+            }
+            50% {
+                background-position: 100% 100%;
+            }
+        }
+
+        /* Dashboard layout */
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            min-height: 100vh;
+        }
+
+        /* Sidebar with detector models */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            text-shadow: 0 0 15px var(--primary-glow);
+        }
+
+        .detector-card {
+            border-radius: 16px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .detector-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--border-light);
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(40, 80, 140, 0.3);
+        }
+
+        .detector-card.active {
+            border-color: var(--primary-color);
+            box-shadow: 
+                0 0 25px rgba(126, 214, 255, 0.4),
+                inset 0 0 15px rgba(126, 214, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .detector-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(126, 214, 255, 0.5);
+        }
+
+        .detector-type {
+            font-size: 0.9rem;
+            color: var(--text-lighter);
+        }
+
+        .detector-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background: #4a5568;
+        }
+
+        .detector-indicator.active {
+            background: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(126, 214, 255, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 12px rgba(126, 214, 255, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(126, 214, 255, 0);
+            }
+        }
+
+        /* Main content area */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            border-radius: 16px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            text-shadow: 0 0 15px var(--primary-glow);
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: var(--text-lighter);
+        }
+
+        /* Animation Container */
+        .animation-container {
+            border-radius: 16px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .animation-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            text-align: center;
+            position: absolute;
+            top: 25px;
+            left: 0;
+            right: 0;
+            text-shadow: 0 0 10px rgba(126, 214, 255, 0.5);
+        }
+
+        /* Animation Wrapper */
+        .animation-wrapper {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            perspective: 1200px;
+        }
+
+        /* LINEAR Survey System Animation - Telescope Field */
+        .linear-telescope {
+            position: absolute;
+            width: 100px;
+            height: 60px;
+            background: linear-gradient(45deg, #3a3a3a, #5a5a5a);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 150, 255, 0.7);
+            z-index: 10;
+        }
+
+        .linear-telescope::before {
+            content: '';
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle at 30% 30%, #7ed6ff, transparent 70%);
+            border-radius: 50%;
+            top: -5px;
+            left: 15px;
+            box-shadow: 0 0 20px #7ed6ff;
+            animation: lens-pulse 3s infinite alternate;
+        }
+
+        .linear-scan-beam {
+            position: absolute;
+            width: 250px;
+            height: 10px;
+            background: linear-gradient(90deg, transparent, #7ed6ff, transparent);
+            top: 50%;
+            left: 50%;
+            transform-origin: left center;
+            animation: linear-sweep 8s infinite ease-in-out;
+            box-shadow: 0 0 15px #7ed6ff;
+            opacity: 0.7;
+            z-index: 5;
+        }
+
+        @keyframes linear-sweep {
+            0%, 20% {
+                transform: rotate(-60deg);
+            }
+            80%, 100% {
+                transform: rotate(60deg);
+            }
+        }
+
+        @keyframes lens-pulse {
+            0% {
+                box-shadow: 0 0 20px #7ed6ff;
+            }
+            100% {
+                box-shadow: 0 0 40px #7ed6ff, 0 0 60px #7ed6ff;
+            }
+        }
+
+        /* NEOWISE Space Telescope Animation - Satellite Orbit */
+        .neowise-satellite {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: linear-gradient(45deg, #3a3a3a, #5a5a5a);
+            top: 50%;
+            left: 50%;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(255, 107, 139, 0.7);
+            z-index: 2;
+            transform-origin: center;
+            animation: satellite-orbit 20s linear infinite;
+        }
+
+        .neowise-orbit {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border: 1px solid rgba(255, 107, 139, 0.3);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .neowise-satellite::before {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle at 30% 30%, #ff6b8b, transparent 70%);
+            border-radius: 50%;
+            top: -5px;
+            left: 5px;
+            box-shadow: 0 0 15px #ff6b8b;
+            animation: infrared-pulse 4s infinite alternate;
+        }
+
+        .neowise-earth {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, #1e90ff, #0066cc);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px rgba(30, 144, 255, 0.5);
+        }
+
+        .neowise-scan {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: conic-gradient(
+                transparent 0deg,
+                rgba(255, 107, 139, 0.2) 10deg,
+                rgba(255, 107, 139, 0.5) 20deg,
+                transparent 30deg
+            );
+            animation: neowise-scan-rotate 15s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes satellite-orbit {
+            0% {
+                transform: rotate(0deg) translateX(100px) rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg) translateX(100px) rotate(-360deg);
+            }
+        }
+
+        @keyframes infrared-pulse {
+            0% {
+                box-shadow: 0 0 15px #ff6b8b;
+            }
+            100% {
+                box-shadow: 0 0 30px #ff6b8b, 0 0 40px #ff6b8b;
+            }
+        }
+
+        @keyframes neowise-scan-rotate {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        /* Catalina Sky Survey Animation - Dual Telescopes */
+        .catalina-telescopes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .catalina-telescope {
+            position: absolute;
+            width: 80px;
+            height: 50px;
+            background: linear-gradient(45deg, #3a3a3a, #5a5a5a);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 150, 255, 0.7);
+        }
+
+        .catalina-telescope:nth-child(1) {
+            top: 30%;
+            left: 30%;
+            animation: catalina-sweep-1 10s infinite ease-in-out;
+        }
+
+        .catalina-telescope:nth-child(2) {
+            top: 60%;
+            left: 60%;
+            animation: catalina-sweep-2 12s infinite ease-in-out;
+        }
+
+        .catalina-telescope::before {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 30% 30%, #7ed6ff, transparent 70%);
+            border-radius: 50%;
+            top: -10px;
+            left: 15px;
+            box-shadow: 0 0 15px #7ed6ff;
+            animation: lens-pulse 3s infinite alternate;
+        }
+
+        .catalina-detection {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--secondary-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--secondary-color);
+            opacity: 0;
+            animation: detection-pulse 3s infinite;
+        }
+
+        @keyframes catalina-sweep-1 {
+            0%, 100% {
+                transform: rotate(-30deg);
+            }
+            50% {
+                transform: rotate(30deg);
+            }
+        }
+
+        @keyframes catalina-sweep-2 {
+            0%, 100% {
+                transform: rotate(20deg);
+            }
+            50% {
+                transform: rotate(-20deg);
+            }
+        }
+
+        @keyframes detection-pulse {
+            0%, 100% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
+        }
+
+        /* Pan-STARRS Animation - Gigapixel Camera */
+        .panstarrs-camera {
+            position: absolute;
+            width: 120px;
+            height: 80px;
+            background: linear-gradient(45deg, #3a3a3a, #5a5a5a);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.7);
+            z-index: 10;
+        }
+
+        .panstarrs-lens {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle at 30% 30%, #9d4edd, transparent 70%);
+            border-radius: 50%;
+            top: 5px;
+            left: 25px;
+            box-shadow: 0 0 20px #9d4edd;
+            animation: lens-pulse 3s infinite alternate;
+        }
+
+        .panstarrs-grid {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            gap: 2px;
+            opacity: 0.7;
+        }
+
+        .grid-cell {
+            background: rgba(30, 40, 60, 0.5);
+            border-radius: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-cell::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(157, 78, 221, 0.1);
+            border-radius: 1px;
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .grid-cell.active::before {
+            transform: scale(1);
+            animation: grid-pulse 1.5s infinite;
+        }
+
+        @keyframes grid-pulse {
+            0%, 100% {
+                background: rgba(157, 78, 221, 0.1);
+            }
+            50% {
+                background: rgba(157, 78, 221, 0.4);
+            }
+        }
+
+        /* ATLAS Animation - Global Network */
+        .atlas-globe {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle at 30% 30%, #1e90ff, #0066cc);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 20px rgba(30, 144, 255, 0.5);
+        }
+
+        .atlas-node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .atlas-node:nth-child(1) {
+            top: 30%;
+            left: 20%;
+            animation: node-pulse 3s infinite;
+        }
+
+        .atlas-node:nth-child(2) {
+            top: 60%;
+            left: 70%;
+            animation: node-pulse 3s infinite 1s;
+        }
+
+        .atlas-node:nth-child(3) {
+            top: 70%;
+            left: 40%;
+            animation: node-pulse 3s infinite 2s;
+        }
+
+        .atlas-node:nth-child(4) {
+            top: 40%;
+            left: 60%;
+            animation: node-pulse 3s infinite 1.5s;
+        }
+
+        .atlas-scan-line {
+            position: absolute;
+            width: 180px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            top: 50%;
+            left: 50%;
+            transform-origin: center;
+            animation: atlas-sweep 6s linear infinite;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .atlas-pulse {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--secondary-color);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--secondary-color);
+            animation: atlas-pulse-animation 3s infinite;
+        }
+
+        @keyframes node-pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes atlas-sweep {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes atlas-pulse-animation {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        /* Detector info cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-card {
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: rgba(80, 120, 180, 0.5);
+            box-shadow: 
+                0 12px 25px rgba(0, 0, 0, 0.4),
+                0 0 25px rgba(40, 80, 140, 0.2);
+        }
+
+        .info-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--primary-color);
+            text-shadow: 0 0 8px rgba(126, 214, 255, 0.4);
+        }
+
+        .info-card p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Navigation buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            width: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 0 25px;
+            pointer-events: none;
+        }
+
+        .nav-button {
+            background: rgba(15, 20, 30, 0.6);
+            border: 1px solid rgba(60, 80, 120, 0.5);
+            color: var(--primary-color);
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(25px);
+            pointer-events: all;
+            box-shadow: 
+                0 5px 20px rgba(0, 0, 0, 0.3),
+                0 0 15px rgba(40, 70, 120, 0.2);
+        }
+
+        .nav-button:hover {
+            background: rgba(25, 35, 50, 0.7);
+            border-color: var(--border-light);
+            transform: scale(1.15);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(50, 90, 150, 0.3);
+        }
+
+        .current-detector {
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: 600;
+            position: absolute;
+            bottom: 25px;
+            left: 0;
+            right: 0;
+            text-shadow: 0 0 8px rgba(126, 214, 255, 0.4);
+        }
+
+        /* Details section */
+        .details-section {
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .details-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 18px;
+            color: var(--primary-color);
+            text-shadow: 0 0 10px rgba(126, 214, 255, 0.5);
+        }
+
+        .details-section ul {
+            list-style-type: none;
+        }
+
+        .details-section li {
+            margin-bottom: 10px;
+            padding-left: 22px;
+            position: relative;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .details-section li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px rgba(126, 214, 255, 0.5);
+        }
+
+        /* Stats section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        .stat-card {
+            background: rgba(10, 15, 25, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(40, 60, 90, 0.4);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card:hover {
+            border-color: rgba(60, 100, 150, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.4),
+                0 0 15px rgba(40, 70, 120, 0.2);
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            text-shadow: 0 0 8px rgba(126, 214, 255, 0.5);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-lighter);
+        }
+
+        /* New interactive elements */
+        .detector-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CAF50;
+            box-shadow: 0 0 8px #4CAF50;
+        }
+
+        .status-indicator.offline {
+            background: #f44336;
+            box-shadow: 0 0 8px #f44336;
+        }
+
+        .status-indicator.maintenance {
+            background: #ff9800;
+            box-shadow: 0 0 8px #ff9800;
+        }
+
+        .status-text {
+            font-size: 0.8rem;
+            color: var(--text-lighter);
+        }
+
+        /* Progress bars for capabilities */
+        .capability-meter {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .capability-progress {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--primary-color), #4facfe);
+            box-shadow: 0 0 10px rgba(126, 214, 255, 0.5);
+            transition: width 1s ease;
+        }
+
+        /* Signal dots for animations */
+        .signal-dots {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .signal-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            box-shadow: 0 0 8px var(--secondary-color);
+            opacity: 0;
+        }
+
+        .asteroid {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: linear-gradient(45deg, #ff9a44, #ff6b8b);
+            border-radius: 50%;
+            box-shadow: 0 0 15px #ff6b8b;
+            opacity: 0;
+            animation: asteroid-float 8s infinite;
+        }
+
+        @keyframes asteroid-float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-200px, 150px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* New button styles */
+        .next-page-button {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 30px auto;
+            padding: 15px 25px;
+            background: var(--glass-darker);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            color: var(--primary-color);
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(40, 80, 140, 0.2);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        .next-page-button:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(40, 100, 180, 0.4);
+        }
+
+        .next-page-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(126, 214, 255, 0.2), 
+                transparent);
+            transition: left 1.2s ease;
+        }
+
+        .next-page-button:hover::before {
+            left: 100%;
+        }
+
+        /* Music indicator */
+        .music-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: var(--glass-darker);
+            backdrop-filter: blur(20px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            cursor: pointer;
+            z-index: 100;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .music-indicator:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(126, 214, 255, 0.3);
+        }
+
+        .music-indicator.muted {
+            color: var(--text-light);
+            opacity: 0.7;
+        }
+
+        /* Responsive design */
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .nav-buttons {
+                padding: 0 15px;
+            }
+            
+            .nav-button {
+                width: 45px;
+                height: 45px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .animation-wrapper {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .music-indicator {
+                bottom: 10px;
+                right: 10px;
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated space background -->
+    <div class="space-background">
+        <div class="stars"></div>
+        <!-- Meteors will be added by JavaScript -->
+    </div>
+
+    <!-- Dashboard layout -->
+    <div class="dashboard">
+        <!-- Sidebar with detector models -->
+        <div class="sidebar">
+            <h2 class="sidebar-title">Detector Models</h2>
+            <div class="detector-list" id="detector-list">
+                <!-- Detector cards will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Main content area -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header glass">
+                <h1>Asteroid Detection Dashboard</h1>
+                <p>Monitor and analyze near-Earth object detection systems</p>
+            </div>
+
+            <!-- Animation Container -->
+            <div class="animation-container glass-strong">
+                <h2 class="animation-title" id="animation-title">LINEAR Survey System</h2>
+                
+                <!-- Navigation buttons -->
+                <div class="nav-buttons">
+                    <button class="nav-button" id="prev-btn">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="nav-button" id="next-btn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <!-- Animation Area -->
+                <div class="animation-wrapper" id="animation-wrapper">
+                    <!-- Animation content will be populated by JavaScript -->
+                </div>
+
+                <div class="current-detector" id="current-detector">LINEAR Survey System</div>
+            </div>
+
+            <!-- Detector information cards -->
+            <div class="info-grid">
+                <div class="info-card glass">
+                    <h3>Description</h3>
+                    <p id="detector-description">Large-scale automated survey using CCD cameras to detect moving objects</p>
+                </div>
+                <div class="info-card glass">
+                    <h3>Capabilities</h3>
+                    <p id="detector-capabilities">Detects objects down to 18th magnitude</p>
+                    <div class="capability-meter">
+                        <div class="capability-progress" style="width: 85%"></div>
+                    </div>
+                </div>
+                <div class="info-card glass">
+                    <h3>Coverage</h3>
+                    <p id="detector-coverage">Northern hemisphere sky survey</p>
+                    <div class="capability-meter">
+                        <div class="capability-progress" style="width: 95%"></div>
+                    </div>
+                </div>
+                <div class="info-card glass">
+                    <h3>Status</h3>
+                    <p id="detector-status">Active since 1998</p>
+                    <div class="detector-status">
+                        <div class="status-indicator"></div>
+                        <span class="status-text">Online</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional details section -->
+            <div class="details-section glass">
+                <h3 id="details-title">LINEAR Survey System — More Details</h3>
+                <ul id="details-list">
+                    <li>Location: Lincoln Laboratory Experimental Test Site, near Socorro, New Mexico</li>
+                    <li>Instruments: 1.0 m and 0.5 m telescopes with CCD arrays and automated pipelines</li>
+                    <li>Method: Difference imaging and tracklet linking to identify moving objects over time</li>
+                    <li>Notable: Pioneered large-scale automated NEO discovery; thousands of object detections</li>
+                    <li>Use Case: Rapid nightly surveys with automated scheduling and candidate vetting</li>
+                </ul>
+                
+                <!-- Stats section -->
+                <div class="stats-grid" id="stats-section">
+                    <div class="stat-card">
+                        <div class="stat-value">2,500+</div>
+                        <div class="stat-label">Asteroids Discovered</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">18.0</div>
+                        <div class="stat-label">Magnitude Limit</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">Sky Coverage</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New button to redirect to Destroying an asteroid4.html -->
+    <a href="Destroying an asteroid4.html" class="next-page-button glass">
+        <i class="fas fa-rocket" style="margin-right: 10px;"></i>
+        Next: Asteroid Destruction Methods
+    </a>
+
+    <!-- Music control indicator -->
+    <div class="music-indicator" id="music-indicator">
+        <i class="fas fa-volume-up"></i>
+    </div>
+
+    <script>
+        // Enhanced detector models data with more details
+        const detectorModels = [
+            {
+                id: 1,
+                name: "LINEAR Survey System",
+                type: "Ground-based Optical",
+                description: "Large-scale automated survey using CCD cameras to detect moving objects",
+                capabilities: "Detects objects down to 18th magnitude with automated tracking",
+                coverage: "Northern hemisphere sky survey with 95% coverage",
+                status: "Active since 1998, continuously upgraded",
+                statusType: "online",
+                capabilitiesProgress: 85,
+                coverageProgress: 95,
+                animationType: "linear",
+                details: {
+                    title: "LINEAR Survey System — Technical Specifications",
+                    items: [
+                        "Location: Lincoln Laboratory Experimental Test Site, near Socorro, New Mexico",
+                        "Instruments: 1.0 m and 0.5 m telescopes with CCD arrays and automated pipelines",
+                        "Method: Difference imaging and tracklet linking to identify moving objects over time",
+                        "Detection Rate: Processes over 5 GB of image data nightly",
+                        "Notable: Pioneered large-scale automated NEO discovery; thousands of object detections",
+                        "Use Case: Rapid nightly surveys with automated scheduling and candidate vetting",
+                        "Accuracy: Orbital determination within 0.1 arcsecond precision",
+                        "Data Processing: Real-time analysis with machine learning algorithms"
+                    ],
+                    stats: [
+                        { value: "2,500+", label: "Asteroids Discovered" },
+                        { value: "18.0", label: "Magnitude Limit" },
+                        { value: "95%", label: "Sky Coverage" }
+                    ]
+                }
+            },
+            {
+                id: 2,
+                name: "NEOWISE Space Telescope",
+                type: "Space-based Infrared",
+                description: "Infrared space telescope optimized for detecting near-Earth objects",
+                capabilities: "Thermal infrared detection, size estimation, and composition analysis",
+                coverage: "All-sky survey every 6 months with complete celestial coverage",
+                status: "Active since 2009, extended mission ongoing",
+                statusType: "online",
+                capabilitiesProgress: 90,
+                coverageProgress: 100,
+                animationType: "neowise",
+                details: {
+                    title: "NEOWISE Space Telescope — Advanced Capabilities",
+                    items: [
+                        "Platform: NASA's Wide-field Infrared Survey Explorer repurposed for NEO detection",
+                        "Wavelengths: Operates primarily in W1 (3.4 μm) and W2 (4.6 μm) infrared bands",
+                        "Method: Thermal IR detects dark/low-albedo objects; enables diameter and albedo estimates",
+                        "Cadence: Repeats all-sky coverage roughly every 6 months with multiple exposures",
+                        "Sensitivity: Can detect objects as small as 100 meters in diameter",
+                        "Notable: Discovered and characterized thousands of asteroids, including many NEOs",
+                        "Use Case: Complements optical surveys by finding faint, dark objects not easily seen in visible light",
+                        "Data Products: Thermal models, size estimates, and reflectance properties"
+                    ],
+                    stats: [
+                        { value: "34,000+", label: "Objects Cataloged" },
+                        { value: "4.6μm", label: "Primary Band" },
+                        { value: "100m", label: "Detection Limit" }
+                    ]
+                }
+            },
+            {
+                id: 3,
+                name: "Catalina Sky Survey",
+                type: "Ground-based CCD",
+                description: "Dedicated NEO discovery program using multiple telescopes",
+                capabilities: "High-resolution imaging, rapid follow-up, and precise orbit determination",
+                coverage: "Northern and southern hemispheres with coordinated observation",
+                status: "Active since 1998, leading NEO discovery program",
+                statusType: "online",
+                capabilitiesProgress: 95,
+                coverageProgress: 85,
+                animationType: "catalina",
+                details: {
+                    title: "Catalina Sky Survey — Discovery Leader",
+                    items: [
+                        "Program: Operated by the University of Arizona's Lunar and Planetary Laboratory",
+                        "Observatories: Mount Lemmon and Catalina Station; multiple 0.7–1.5 m telescopes",
+                        "Method: Wide-field CCD imaging with automated pipelines, tracklet linking, and vetting",
+                        "Cadence: Nightly surveys with rapid follow-up to refine orbits",
+                        "Discovery Rate: Accounts for approximately 47% of all NEO discoveries",
+                        "Notable: Among the top discoverers of near‑Earth objects and potentially hazardous asteroids",
+                        "Use Case: High‑volume NEO discovery and quick turnaround for orbit determination",
+                        "Follow-up: Rapid response team for newly discovered potentially hazardous objects"
+                    ],
+                    stats: [
+                        { value: "47%", label: "NEO Discoveries" },
+                        { value: "21.5", label: "Magnitude Limit" },
+                        { value: "10,000+", label: "NEOs Found" }
+                    ]
+                }
+            },
+            {
+                id: 4,
+                name: "Pan-STARRS",
+                type: "Wide-field Survey",
+                description: "Panoramic Survey Telescope and Rapid Response System",
+                capabilities: "Deep wide-field imaging with the world's largest digital camera",
+                coverage: "Three-quarters of the entire sky visible from Hawaii",
+                status: "Operational since 2010, ongoing survey mission",
+                statusType: "maintenance",
+                capabilitiesProgress: 80,
+                coverageProgress: 75,
+                animationType: "panstarrs",
+                details: {
+                    title: "Pan-STARRS — Deep Sky Survey",
+                    items: [
+                        "Location: Haleakala Observatory, Maui, Hawaii",
+                        "Telescope: 1.8-meter with 1.4 gigapixel camera (largest in the world)",
+                        "Field of View: 7 square degrees per exposure",
+                        "Method: Deep stacked imaging with difference analysis",
+                        "Depth: Can detect objects as faint as 24th magnitude",
+                        "Notable: Discovered first known interstellar object 'Oumuamua",
+                        "Use Case: Systematic survey for moving objects and transient phenomena",
+                        "Data Archive: Petabyte-scale database of the entire visible sky"
+                    ],
+                    stats: [
+                        { value: "1.4 GP", label: "Camera Resolution" },
+                        { value: "24.0", label: "Magnitude Limit" },
+                        { value: "75%", label: "Sky Coverage" }
+                    ]
+                }
+            },
+            {
+                id: 5,
+                name: "ATLAS",
+                type: "Asteroid Terrestrial-impact Last Alert System",
+                description: "Early warning system for potentially hazardous asteroids",
+                capabilities: "Whole sky scanning every night for impact threats",
+                coverage: "Entire visible sky from multiple locations worldwide",
+                status: "Fully operational since 2017, four-telescope network",
+                statusType: "online",
+                capabilitiesProgress: 75,
+                coverageProgress: 100,
+                animationType: "atlas",
+                details: {
+                    title: "ATLAS — Impact Early Warning",
+                    items: [
+                        "Network: Four 0.5-meter telescopes in Hawaii and South Africa",
+                        "Scan Rate: Entire visible sky scanned every 24 hours",
+                        "Alert Time: Can provide 1 day warning for 10-meter objects, 3 weeks for 100-meter objects",
+                        "Method: High-cadence surveying with automated detection pipelines",
+                        "Sensitivity: Can detect a 100-meter asteroid at 1.3 million km distance",
+                        "Notable: First system specifically designed for impact warning",
+                        "Use Case: Last-minute warning for small impactors, early detection of larger threats",
+                        "Response: Immediate alerts to planetary defense coordination office"
+                    ],
+                    stats: [
+                        { value: "24h", label: "Full Sky Scan" },
+                        { value: "20.0", label: "Magnitude Limit" },
+                        { value: "4", label: "Telescope Network" }
+                    ]
+                }
+            }
+        ];
+
+        // State management
+        let currentDetectorIndex = 0;
+        let isMusicPlaying = false;
+        let isMusicMuted = false;
+
+        // DOM elements
+        const detectorList = document.getElementById('detector-list');
+        const animationTitle = document.getElementById('animation-title');
+        const currentDetector = document.getElementById('current-detector');
+        const detectorDescription = document.getElementById('detector-description');
+        const detectorCapabilities = document.getElementById('detector-capabilities');
+        const detectorCoverage = document.getElementById('detector-coverage');
+        const detectorStatus = document.getElementById('detector-status');
+        const detailsTitle = document.getElementById('details-title');
+        const detailsList = document.getElementById('details-list');
+        const statsSection = document.getElementById('stats-section');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const animationWrapper = document.getElementById('animation-wrapper');
+        const musicIndicator = document.getElementById('music-indicator');
+
+        // Sound effects
+        const buttonClickSound = new Audio('detection of asteroids/button click( select).mp3');
+        const casualClickSound = new Audio('detection of asteroids/casual click.mp3');
+        const changeModelSound = new Audio('detection of asteroids/change model.mp3');
+        const hoverSound = new Audio('detection of asteroids/hover.mp3');
+        const backgroundMusic = new Audio('detection of asteroids/background music.mp3');
+        
+        // Configure background music
+        backgroundMusic.loop = true;
+        backgroundMusic.volume = 0.4;
+
+        // Initialize the detector list
+        function initializeDetectorList() {
+            detectorList.innerHTML = '';
+            
+            detectorModels.forEach((detector, index) => {
+                const card = document.createElement('div');
+                card.className = `detector-card glass ${index === currentDetectorIndex ? 'active' : ''}`;
+                card.innerHTML = `
+                    <div class="detector-indicator ${index === currentDetectorIndex ? 'active' : ''}"></div>
+                    <div class="detector-name">${detector.name}</div>
+                    <div class="detector-type">${detector.type}</div>
+                    <div class="detector-status">
+                        <div class="status-indicator ${detector.statusType !== 'online' ? detector.statusType : ''}"></div>
+                        <span class="status-text">${detector.statusType === 'online' ? 'Online' : detector.statusType === 'offline' ? 'Offline' : 'Maintenance'}</span>
+                    </div>
+                `;
+                
+                // Add hover sound to detector cards
+                card.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => console.log("Hover sound play failed:", e));
+                });
+                
+                card.addEventListener('click', () => {
+                    changeModelSound.currentTime = 0;
+                    changeModelSound.play().catch(e => console.log("Change model sound play failed:", e));
+                    selectDetector(index);
+                });
+                
+                detectorList.appendChild(card);
+            });
+        }
+
+        // Create animation based on detector type
+        function createAnimation(animationType) {
+            animationWrapper.innerHTML = '';
+            
+            switch(animationType) {
+                case 'linear':
+                    // LINEAR Survey System - Telescope with scanning beam
+                    animationWrapper.innerHTML = `
+                        <div class="linear-telescope"></div>
+                        <div class="linear-scan-beam"></div>
+                        <div class="signal-dots" id="signal-dots"></div>
+                        <div class="asteroids-container" id="asteroids-container"></div>
+                    `;
+                    createSignalDots();
+                    createAsteroids();
+                    break;
+                    
+                case 'neowise':
+                    // NEOWISE Space Telescope - Satellite in orbit with infrared detection
+                    animationWrapper.innerHTML = `
+                        <div class="neowise-earth"></div>
+                        <div class="neowise-orbit"></div>
+                        <div class="neowise-satellite"></div>
+                        <div class="neowise-scan"></div>
+                        <div class="signal-dots" id="signal-dots"></div>
+                        <div class="asteroids-container" id="asteroids-container"></div>
+                    `;
+                    createSignalDots();
+                    createAsteroids();
+                    break;
+                    
+                case 'catalina':
+                    // Catalina Sky Survey - Dual telescopes scanning
+                    animationWrapper.innerHTML = `
+                        <div class="catalina-telescopes">
+                            <div class="catalina-telescope"></div>
+                            <div class="catalina-telescope"></div>
+                            <div class="catalina-detection" style="top: 40%; left: 50%;"></div>
+                            <div class="catalina-detection" style="top: 65%; left: 35%;"></div>
+                            <div class="catalina-detection" style="top: 25%; left: 65%;"></div>
+                        </div>
+                        <div class="signal-dots" id="signal-dots"></div>
+                        <div class="asteroids-container" id="asteroids-container"></div>
+                    `;
+                    createSignalDots();
+                    createAsteroids();
+                    break;
+                    
+                case 'panstarrs':
+                    // Pan-STARRS - Gigapixel camera with grid activation
+                    animationWrapper.innerHTML = `
+                        <div class="panstarrs-camera">
+                            <div class="panstarrs-lens"></div>
+                        </div>
+                        <div class="panstarrs-grid" id="panstarrs-grid"></div>
+                        <div class="asteroids-container" id="asteroids-container"></div>
+                    `;
+                    createCameraGrid();
+                    createAsteroids();
+                    break;
+                    
+                case 'atlas':
+                    // ATLAS - Global network with scanning line
+                    animationWrapper.innerHTML = `
+                        <div class="atlas-globe">
+                            <div class="atlas-node"></div>
+                            <div class="atlas-node"></div>
+                            <div class="atlas-node"></div>
+                            <div class="atlas-node"></div>
+                            <div class="atlas-pulse" style="top: 45%; left: 45%;"></div>
+                        </div>
+                        <div class="atlas-scan-line"></div>
+                        <div class="signal-dots" id="signal-dots"></div>
+                        <div class="asteroids-container" id="asteroids-container"></div>
+                    `;
+                    createSignalDots();
+                    createAsteroids();
+                    break;
+            }
+        }
+
+        // Create signal dots for the animation
+        function createSignalDots() {
+            const signalDots = document.getElementById('signal-dots');
+            if (!signalDots) return;
+            
+            signalDots.innerHTML = '';
+            
+            // Create multiple signal dots
+            for (let i = 0; i < 12; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'signal-dot';
+                
+                // Random position
+                const angle = Math.random() * 360;
+                const distance = 50 + Math.random() * 80;
+                const x = 100 + Math.cos(angle * Math.PI / 180) * distance;
+                const y = 100 + Math.sin(angle * Math.PI / 180) * distance;
+                
+                dot.style.left = `${x}px`;
+                dot.style.top = `${y}px`;
+                
+                // Random animation delay
+                const delay = Math.random() * 4;
+                dot.style.animation = `detection-pulse 3s ${delay}s infinite`;
+                
+                signalDots.appendChild(dot);
+            }
+        }
+
+        // Create asteroids for the animation
+        function createAsteroids() {
+            const asteroidsContainer = document.getElementById('asteroids-container');
+            if (!asteroidsContainer) return;
+            
+            asteroidsContainer.innerHTML = '';
+            
+            // Create multiple asteroids
+            for (let i = 0; i < 6; i++) {
+                const asteroid = document.createElement('div');
+                asteroid.className = 'asteroid';
+                
+                // Random start position
+                const startX = 300 + Math.random() * 100;
+                const startY = -50 - Math.random() * 100;
+                
+                asteroid.style.left = `${startX}px`;
+                asteroid.style.top = `${startY}px`;
+                
+                // Random animation delay and duration
+                const delay = Math.random() * 10;
+                const duration = 5 + Math.random() * 10;
+                
+                asteroid.style.animation = `asteroid-float ${duration}s ${delay}s infinite`;
+                
+                asteroidsContainer.appendChild(asteroid);
+            }
+        }
+
+        // Create camera grid for Pan-STARRS
+        function createCameraGrid() {
+            const cameraGrid = document.getElementById('panstarrs-grid');
+            if (!cameraGrid) return;
+            
+            cameraGrid.innerHTML = '';
+            
+            // Create 8x8 grid
+            for (let i = 0; i < 64; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                cameraGrid.appendChild(cell);
+            }
+            
+            // Activate random cells
+            const cells = cameraGrid.querySelectorAll('.grid-cell');
+            setInterval(() => {
+                cells.forEach(cell => cell.classList.remove('active'));
+                
+                // Activate 5-8 random cells
+                const activeCount = 5 + Math.floor(Math.random() * 4);
+                for (let i = 0; i < activeCount; i++) {
+                    const randomIndex = Math.floor(Math.random() * cells.length);
+                    cells[randomIndex].classList.add('active');
+                }
+            }, 800);
+        }
+
+        // Update the detector display
+        function updateDetectorDisplay() {
+            const currentDetectorData = detectorModels[currentDetectorIndex];
+            
+            animationTitle.textContent = currentDetectorData.name;
+            currentDetector.textContent = currentDetectorData.name;
+            detectorDescription.textContent = currentDetectorData.description;
+            detectorCapabilities.textContent = currentDetectorData.capabilities;
+            detectorCoverage.textContent = currentDetectorData.coverage;
+            detectorStatus.textContent = currentDetectorData.status;
+            
+            // Update progress bars
+            document.querySelectorAll('.capability-progress').forEach((progress, index) => {
+                if (index === 0) {
+                    progress.style.width = `${currentDetectorData.capabilitiesProgress}%`;
+                } else {
+                    progress.style.width = `${currentDetectorData.coverageProgress}%`;
+                }
+            });
+            
+            // Update additional details
+            detailsTitle.textContent = currentDetectorData.details.title;
+            
+            // Clear and rebuild details list
+            detailsList.innerHTML = '';
+            currentDetectorData.details.items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                detailsList.appendChild(li);
+            });
+            
+            // Update stats section
+            statsSection.innerHTML = '';
+            currentDetectorData.details.stats.forEach(stat => {
+                const statCard = document.createElement('div');
+                statCard.className = 'stat-card';
+                statCard.innerHTML = `
+                    <div class="stat-value">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                `;
+                statsSection.appendChild(statCard);
+            });
+            
+            // Update the detector list highlighting
+            initializeDetectorList();
+            
+            // Update animation
+            createAnimation(currentDetectorData.animationType);
+        }
+
+        // Select a detector
+        function selectDetector(index) {
+            currentDetectorIndex = index;
+            updateDetectorDisplay();
+        }
+
+        // Next detector
+        function nextDetector() {
+            changeModelSound.currentTime = 0;
+            changeModelSound.play().catch(e => console.log("Change model sound play failed:", e));
+            currentDetectorIndex = (currentDetectorIndex + 1) % detectorModels.length;
+            updateDetectorDisplay();
+        }
+
+        // Previous detector
+        function prevDetector() {
+            changeModelSound.currentTime = 0;
+            changeModelSound.play().catch(e => console.log("Change model sound play failed:", e));
+            currentDetectorIndex = (currentDetectorIndex - 1 + detectorModels.length) % detectorModels.length;
+            updateDetectorDisplay();
+        }
+
+        // Create meteors
+        function createMeteors() {
+            const container = document.querySelector('.space-background');
+            
+            // Create multiple meteors
+            for (let i = 0; i < 8; i++) {
+                const meteor = document.createElement('div');
+                meteor.className = 'meteor';
+                
+                // Random position and animation delay
+                const left = Math.random() * 100;
+                const delay = Math.random() * 20;
+                const duration = 2 + Math.random() * 3;
+                
+                meteor.style.left = `${left}vw`;
+                meteor.style.animationDelay = `${delay}s`;
+                meteor.style.animationDuration = `${duration}s`;
+                
+                container.appendChild(meteor);
+            }
+        }
+
+        // Start background music
+        function startBackgroundMusic() {
+            if (!isMusicPlaying) {
+                backgroundMusic.play().catch(e => console.log("Background music play failed:", e));
+                isMusicPlaying = true;
+                musicIndicator.classList.remove('muted');
+            }
+        }
+
+        // Toggle music mute
+        function toggleMusicMute() {
+            if (isMusicMuted) {
+                backgroundMusic.volume = 0.4;
+                isMusicMuted = false;
+                musicIndicator.classList.remove('muted');
+                musicIndicator.innerHTML = '<i class="fas fa-volume-up"></i>';
+            } else {
+                backgroundMusic.volume = 0;
+                isMusicMuted = true;
+                musicIndicator.classList.add('muted');
+                musicIndicator.innerHTML = '<i class="fas fa-volume-mute"></i>';
+            }
+        }
+
+        // Add hover sounds to interactive elements
+        function addHoverSounds() {
+            // Add hover sound to navigation buttons
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                button.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => console.log("Hover sound play failed:", e));
+                });
+            });
+            
+            // Add hover sound to info cards
+            const infoCards = document.querySelectorAll('.info-card');
+            infoCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => console.log("Hover sound play failed:", e));
+                });
+            });
+            
+            // Add hover sound to stat cards
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => console.log("Hover sound play failed:", e));
+                });
+            });
+            
+            // Add hover sound to the new button
+            const nextPageButton = document.querySelector('.next-page-button');
+            if (nextPageButton) {
+                nextPageButton.addEventListener('mouseenter', () => {
+                    hoverSound.currentTime = 0;
+                    hoverSound.play().catch(e => console.log("Hover sound play failed:", e));
+                });
+            }
+        }
+
+        // Add click sounds to document
+        function addClickSounds() {
+            document.addEventListener('click', (e) => {
+                // Start background music on first click
+                if (!isMusicPlaying) {
+                    startBackgroundMusic();
+                }
+                
+                // If the click is on a detector card, nav button, or next page button, we've already handled the sound
+                if (e.target.closest('.detector-card') || e.target.closest('.nav-button') || e.target.closest('.next-page-button') || e.target.closest('.music-indicator')) {
+                    return;
+                }
+                
+                // Play casual click for other clicks
+                casualClickSound.currentTime = 0;
+                casualClickSound.play().catch(err => console.log("Casual click sound play failed:", err));
+            });
+        }
+
+        // Event listeners
+        prevBtn.addEventListener('click', prevDetector);
+        nextBtn.addEventListener('click', nextDetector);
+        musicIndicator.addEventListener('click', toggleMusicMute);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                prevDetector();
+            } else if (e.key === 'ArrowRight') {
+                nextDetector();
+            }
+        });
+
+        // Initialize the application
+        initializeDetectorList();
+        updateDetectorDisplay();
+        createMeteors();
+        addHoverSounds();
+        addClickSounds();
+    </script>
+</body>
+</html>
