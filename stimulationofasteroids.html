@@ -172,6 +172,29 @@
             line-height: 1.6;
             animation: statusFade 5s infinite alternate;
         }
+
+        /* Sound initialization prompt */
+        .sound-prompt {
+            margin-top: 30px;
+            color: #00f2fe;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            text-align: center;
+            animation: pulse 2s infinite, hoverGlow 3s infinite alternate;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 30px;
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .sound-prompt:hover {
+            background: rgba(0, 242, 254, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+        }
        
         /* Loading Background Elements */
         .loading-bg {
@@ -1341,6 +1364,16 @@
             0%, 100% { opacity: 0.2; }
             50% { opacity: 1; }
         }
+
+        /* New animation for sound prompt hover effect */
+        @keyframes hoverGlow {
+            0% {
+                box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+            }
+            100% {
+                box-shadow: 0 0 20px rgba(0, 242, 254, 0.7);
+            }
+        }
        
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -1356,6 +1389,11 @@
             .loading-status {
                 max-width: 350px;
                 font-size: 0.8rem;
+            }
+
+            .sound-prompt {
+                font-size: 0.9rem;
+                padding: 8px 16px;
             }
            
             .title {
@@ -1435,6 +1473,11 @@
             </div>
            
             <div class="loading-status" id="loading-status">Calibrating orbital sensors...</div>
+            
+            <!-- Sound initialization prompt -->
+            <div class="sound-prompt" id="sound-prompt">
+                <i class="fas fa-volume-up"></i> CLICK TO INITIALIZE SOUND
+            </div>
         </div>
     </div>
 
@@ -1758,11 +1801,20 @@
                 audioEnabled = true;
                 document.getElementById('loading-sound').volume = 0.5;
                 document.getElementById('loading-sound').play();
+                
+                // Hide the sound prompt
+                const soundPrompt = document.getElementById('sound-prompt');
+                if (soundPrompt) {
+                    soundPrompt.style.display = 'none';
+                }
             }
         }
         
-        // Add event listener for first user interaction
+        // Add event listeners for user interaction
         document.addEventListener('click', enableAudio, { once: true });
+        document.addEventListener('mousemove', enableAudio, { once: true });
+        document.addEventListener('keydown', enableAudio, { once: true });
+        document.addEventListener('touchstart', enableAudio, { once: true });
         
         // Play sound function
         function playSound(soundName) {
