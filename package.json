@@ -1,0 +1,19 @@
+{
+  "name": "space-ai",
+  "version": "1.0.0",
+  "description": "An AI that explains asteroids, meteors, and comets.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["AI", "space", "education"],
+  "author": "Fahad Haseeb",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2"
+  }
+}
