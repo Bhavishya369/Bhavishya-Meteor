@@ -2484,41 +2484,46 @@
                 }
             }
 
-            // AI function that connects to your server
-            async function askAI(question, gameState) {
-                try {
-                    const totalSeconds = gameState.minutes * 60 + gameState.seconds;
-                    const timeLeft = `${gameState.minutes}:${gameState.seconds.toString().padStart(2, '0')}`;
-                    
-                    const res = await fetch("http://localhost:3000/ask", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ 
-                            question: `As a planetary defense AI assistant, my duty is to help save Earth from the approaching asteroid ${gameState.selectedAsteroid.name} (${gameState.selectedAsteroid.type}). 
-                            
-                            Current mission status:
-                            - Time until impact: ${timeLeft}
-                            - Population at risk: ${formatNumber(gameState.population)}
-                            - Defense resources: ${gameState.resources}%
-                            - Survival chance: ${gameState.successChance}%
-                            - Questions answered: ${gameState.answeredQuestions}/4
-                            - Correct answers: ${gameState.correctAnswers}
-                            
-                            Asteroid details: ${gameState.selectedAsteroid.description}
-                            
-                            User question: ${question}
-                            
-                            Please provide expert guidance on planetary defense, asteroid detection, deflection strategies, and survival protocols. Focus on helping protect Earth and clear any doubts.`
-                        }),
-                    });
-                    const data = await res.json();
-                    return data.answer || "I'm analyzing the asteroid data. Please try again.";
-                } catch (err) {
-                    console.error("Error connecting to server:", err);
-                    // Fallback to local responses if server is not available
-                    return generateLocalAIResponse(question, gameState);
-                }
-            }
+           // AI function that connects to your server
+async function askAI(question, gameState) {
+    try {
+        const totalSeconds = gameState.minutes * 60 + gameState.seconds;
+        const timeLeft = `${gameState.minutes}:${gameState.seconds.toString().padStart(2, '0')}`;
+        
+        const res = await fetch("https://ai-server-1-w9ur.onrender.com/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                question: `As a planetary defense AI assistant, my duty is to help save Earth from the approaching asteroid ${gameState.selectedAsteroid.name} (${gameState.selectedAsteroid.type}). 
+                
+                Current mission status:
+                - Time until impact: ${timeLeft}
+                - Population at risk: ${formatNumber(gameState.population)}
+                - Defense resources: ${gameState.resources}%
+                - Survival chance: ${gameState.successChance}%
+                - Questions answered: ${gameState.answeredQuestions}/4
+                - Correct answers: ${gameState.correctAnswers}
+                
+                Asteroid details: ${gameState.selectedAsteroid.description}
+                
+                User question: ${question}
+                
+                Please provide expert guidance on planetary defense, asteroid detection, deflection strategies, and survival protocols. Focus on helping protect Earth and clear any doubts.`
+            }),
+        });
+        
+        if (!res.ok) {
+            throw new Error(`Server responded with status: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        return data.answer || "I'm analyzing the asteroid data. Please try again.";
+    } catch (err) {
+        console.error("Error connecting to AI server:", err);
+        // Fallback to local responses if server is not available
+        return generateLocalAIResponse(question, gameState);
+    }
+}
 
             // Generate local AI response as fallback
             function generateLocalAIResponse(userMessage, gameState) {
