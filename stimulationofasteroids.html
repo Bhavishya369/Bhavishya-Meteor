@@ -713,10 +713,11 @@
        
         .earth {
             position: absolute;
-            bottom: 50px;
+            top: 50%;
             right: 50px;
             width: 120px;
             height: 120px;
+            transform: translateY(-50%);
             background: radial-gradient(circle at 30px 30px, #1a5fb4, #0c2d5c);
             border-radius: 50%;
             box-shadow: 0 0 30px rgba(26, 95, 180, 0.8);
@@ -740,30 +741,45 @@
        
         .asteroid {
             position: absolute;
-            top: -80px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 50%;
+            left: -80px;
+            transform: translateY(-50%);
             width: 80px;
             height: 80px;
             background: radial-gradient(circle at 20px 20px, #8b4513, #5d2906);
             border-radius: 50%;
             box-shadow: 0 0 20px rgba(139, 69, 19, 0.7);
-            animation: fall 15s linear forwards, rotate 5s infinite linear;
+            animation: rotate 5s infinite linear;
             z-index: 1;
         }
        
         .asteroid-trail {
             position: absolute;
-            top: -80px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 50%;
+            left: -80px;
+            transform: translateY(-50%);
             width: 80px;
             height: 80px;
             background: radial-gradient(ellipse at center, rgba(139, 69, 19, 0.4) 0%, transparent 70%);
             border-radius: 50%;
-            animation: fall 15s linear forwards;
             z-index: 0;
             filter: blur(5px);
+        }
+       
+        /* Explosion effect */
+        .explosion {
+            position: absolute;
+            top: 50%;
+            right: 50px;
+            transform: translateY(-50%);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ff9500, #ff3e00, transparent);
+            box-shadow: 0 0 50px #ff3e00;
+            opacity: 0;
+            z-index: 3;
+            pointer-events: none;
         }
        
         /* Questions Section */
@@ -1340,14 +1356,14 @@
             100% { transform: scale(1); opacity: 1; }
         }
        
-        @keyframes fall {
-            0% { top: -80px; transform: translateX(-50%) rotate(0deg); }
-            100% { top: 220px; transform: translateX(-50%) rotate(360deg); }
+        @keyframes moveLeftToRight {
+            0% { left: -80px; }
+            100% { left: calc(100% - 170px); }
         }
        
         @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
         }
        
         @keyframes fadeIn {
@@ -1363,6 +1379,12 @@
         @keyframes twinkle {
             0%, 100% { opacity: 0.2; }
             50% { opacity: 1; }
+        }
+
+        @keyframes explosion {
+            0% { transform: translateY(-50%) scale(0); opacity: 1; }
+            50% { transform: translateY(-50%) scale(1.5); opacity: 0.8; }
+            100% { transform: translateY(-50%) scale(2); opacity: 0; }
         }
 
         /* New animation for sound prompt hover effect */
@@ -1580,6 +1602,7 @@
             <div class="earth"></div>
             <div class="asteroid-trail"></div>
             <div class="asteroid"></div>
+            <div class="explosion" id="explosion"></div>
         </div>
 
         <section class="questions-section">
@@ -1657,7 +1680,7 @@
             </div>
             <div class="chat-messages" id="chat-messages">
                 <div class="message ai-message">
-                    Hello Commander! I'm Arthurite, your planetary defense AI. The asteroid threat is critical. We need to act quickly to save humanity.
+                    Hello Commander! I'm Arthurite, your planetary defense AI. We're tracking an approaching asteroid that poses a critical threat to Earth. I'm connected to our defense network and ready to provide expert guidance on detection, deflection strategies, and survival protocols. How can I assist in our mission to save humanity?
                 </div>
             </div>
             <div class="typing-indicator" id="typing-indicator">
@@ -1687,37 +1710,40 @@
 
     <!-- Audio Elements -->
     <audio id="background-music" loop>
-        <source src="stimulation of asteroids/background music 23.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" type="audio/mpeg">
     </audio>
     <audio id="loading-sound">
-        <source src="stimulation of asteroids/loading.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-robot-voice-264.mp3" type="audio/mpeg">
     </audio>
     <audio id="button-sound">
-        <source src="stimulation of asteroids/button,stimulate.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
     </audio>
     <audio id="casual-click-sound">
-        <source src="stimulation of asteroids/casual click.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
     </audio>
     <audio id="chat-bot-sound">
-        <source src="stimulation of asteroids/chat bot.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-robot-voice-264.mp3" type="audio/mpeg">
     </audio>
     <audio id="failure-sound">
-        <source src="stimulation of asteroids/failure.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-warning-alarm-buzzer-985.mp3" type="audio/mpeg">
     </audio>
     <audio id="hover-sound">
-        <source src="stimulation of asteroids/hover on stimulation.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-cool-interface-click-tone-2568.mp3" type="audio/mpeg">
     </audio>
     <audio id="individual-correct-sound">
-        <source src="stimulation of asteroids/individual correct answer.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" type="audio/mpeg">
     </audio>
     <audio id="individual-wrong-sound">
-        <source src="stimulation of asteroids/individual wrong answer.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" type="audio/mpeg">
     </audio>
     <audio id="time-tick-sound">
-        <source src="stimulation of asteroids/time tick tick for 4sec.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-clock-ticking-close-1003.mp3" type="audio/mpeg">
     </audio>
     <audio id="victory-sound">
-        <source src="stimulation of asteroids/victory.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="explosion-sound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-bomb-explosion-in-the-air-2801.mp3" type="audio/mpeg">
     </audio>
 
     <script>
@@ -1752,44 +1778,68 @@
             }
         ];
 
-        // Question data
-        const questions = {
-            detection: {
-                question: "What is the most effective method to detect and track the approaching asteroid?",
-                options: [
-                    { text: "Ground-based optical telescopes", correct: true, impact: 5 },
-                    { text: "Radio telescopes", correct: false, impact: -10 },
-                    { text: "Infrared space telescopes", correct: true, impact: 8 },
-                    { text: "Radar imaging", correct: true, impact: 7 }
-                ]
-            },
-            destruction: {
-                question: "What is the most effective method to destroy or deflect the asteroid?",
-                options: [
-                    { text: "Nuclear explosive device", correct: true, impact: 10 },
-                    { text: "Kinetic impactor", correct: true, impact: 8 },
-                    { text: "Gravity tractor", correct: false, impact: -15 },
-                    { text: "Laser ablation", correct: false, impact: -12 }
-                ]
-            },
-            safety: {
-                question: "Where are the safest locations if the asteroid hits Earth?",
-                options: [
-                    { text: "Underground bunkers", correct: true, impact: 5 },
-                    { text: "High-altitude mountains", correct: false, impact: -8 },
-                    { text: "Remote oceanic areas", correct: false, impact: -10 },
-                    { text: "Opposite side of impact", correct: true, impact: 7 }
-                ]
-            },
-            quiz: {
-                question: "Which statement is true about the approaching asteroid?",
-                options: [
-                    { text: "Option 1", correct: false, impact: -5 },
-                    { text: "Option 2", correct: false, impact: -5 },
-                    { text: "Option 3", correct: true, impact: 10 },
-                    { text: "Option 4", correct: false, impact: -5 }
-                ]
-            }
+        // Question data with multiple sets for variety
+        const questionSets = {
+            detection: [
+                {
+                    question: "What is the most effective method to detect and track the approaching asteroid?",
+                    options: [
+                        { text: "Ground-based optical telescopes", correct: true, impact: 5 },
+                        { text: "Radio telescopes", correct: false, impact: -10 },
+                        { text: "Infrared space telescopes", correct: true, impact: 8 },
+                        { text: "Radar imaging", correct: true, impact: 7 }
+                    ]
+                },
+                {
+                    question: "Which detection method provides the most accurate trajectory data?",
+                    options: [
+                        { text: "Optical telescopes with long exposure", correct: false, impact: -5 },
+                        { text: "Radio telescopes with interferometry", correct: true, impact: 9 },
+                        { text: "Infrared sensors on satellites", correct: true, impact: 6 },
+                        { text: "Radar bounce measurements", correct: true, impact: 8 }
+                    ]
+                }
+            ],
+            destruction: [
+                {
+                    question: "What is the most effective method to destroy or deflect the asteroid?",
+                    options: [
+                        { text: "Nuclear explosive device", correct: true, impact: 10 },
+                        { text: "Kinetic impactor", correct: true, impact: 8 },
+                        { text: "Gravity tractor", correct: false, impact: -15 },
+                        { text: "Laser ablation", correct: false, impact: -12 }
+                    ]
+                },
+                {
+                    question: "Which deflection technique works best for large asteroids?",
+                    options: [
+                        { text: "Nuclear standoff explosion", correct: true, impact: 9 },
+                        { text: "Multiple kinetic impactors", correct: true, impact: 7 },
+                        { text: "Solar sails", correct: false, impact: -10 },
+                        { text: "Ion beam shepherds", correct: false, impact: -8 }
+                    ]
+                }
+            ],
+            safety: [
+                {
+                    question: "Where are the safest locations if the asteroid hits Earth?",
+                    options: [
+                        { text: "Underground bunkers", correct: true, impact: 5 },
+                        { text: "High-altitude mountains", correct: false, impact: -8 },
+                        { text: "Remote oceanic areas", correct: false, impact: -10 },
+                        { text: "Opposite side of impact", correct: true, impact: 7 }
+                    ]
+                },
+                {
+                    question: "Which areas would be most affected by an asteroid impact?",
+                    options: [
+                        { text: "Coastal regions", correct: true, impact: -5 },
+                        { text: "Mountainous regions", correct: false, impact: 8 },
+                        { text: "Underground facilities", correct: false, impact: 10 },
+                        { text: "Interior continental areas", correct: true, impact: 6 }
+                    ]
+                }
+            ]
         };
 
         // Sound system
@@ -1952,10 +2002,12 @@
                 answeredQuestions: 0,
                 correctAnswers: 0,
                 musicEnabled: true,
-                sfxEnabled: true
+                sfxEnabled: true,
+                lastWarningTime: 0,
+                impactOccurred: false
             };
 
-            // Populate question options
+            // Populate question options with random sets
             populateQuestionOptions(gameState.selectedAsteroid);
 
             // Timer Countdown - Updated for 5 minutes countdown
@@ -1982,7 +2034,12 @@
                         document.querySelector('.timer-label').style.color = "#ff4757";
                         clearInterval(timerInterval);
                         clearInterval(timeTickInterval);
-                        showGameAlert("IMPACT DETECTED", "The asteroid has struck Earth! Humanity's fate now depends on your strategy.", "ASSESS DAMAGE");
+                        
+                        // Trigger impact explosion
+                        if (!gameState.impactOccurred) {
+                            gameState.impactOccurred = true;
+                            triggerImpact(gameState);
+                        }
                     }
                 }
                
@@ -1990,6 +2047,16 @@
                 hoursElement.textContent = gameState.hours.toString().padStart(2, '0');
                 minutesElement.textContent = gameState.minutes.toString().padStart(2, '0');
                 secondsElement.textContent = gameState.seconds.toString().padStart(2, '0');
+                
+                // Update asteroid animation based on time remaining
+                updateAsteroidPosition(gameState.minutes, gameState.seconds);
+                
+                // Send warnings every 30 seconds after first minute
+                const totalSeconds = gameState.minutes * 60 + gameState.seconds;
+                if (totalSeconds <= 240 && totalSeconds % 30 === 0 && totalSeconds !== gameState.lastWarningTime) {
+                    gameState.lastWarningTime = totalSeconds;
+                    sendWarningMessage(gameState);
+                }
             }
            
             const timerInterval = setInterval(updateTimer, 1000);
@@ -2019,12 +2086,58 @@
                 return num.toString();
             }
            
-            // Populate question options
+            // Update asteroid position based on time remaining
+            function updateAsteroidPosition(minutes, seconds) {
+                const asteroid = document.querySelector('.asteroid');
+                const asteroidTrail = document.querySelector('.asteroid-trail');
+                const totalSeconds = minutes * 60 + seconds;
+                const maxSeconds = 5 * 60; // 5 minutes
+                const progress = 1 - (totalSeconds / maxSeconds);
+                
+                // Calculate new position (from left to right)
+                const containerWidth = document.querySelector('.asteroid-container').offsetWidth;
+                const earthLeft = containerWidth - 170; // Position of Earth from left
+                const newLeft = -80 + (earthLeft + 80) * progress;
+                
+                asteroid.style.left = `${newLeft}px`;
+                asteroidTrail.style.left = `${newLeft}px`;
+                
+                // Scale asteroid as it gets closer
+                const scale = 1 + progress * 2;
+                asteroid.style.transform = `translateY(-50%) scale(${scale})`;
+                asteroidTrail.style.transform = `translateY(-50%) scale(${scale})`;
+            }
+            
+            // Trigger impact explosion
+            function triggerImpact(gameState) {
+                const asteroid = document.querySelector('.asteroid');
+                const asteroidTrail = document.querySelector('.asteroid-trail');
+                const earth = document.querySelector('.earth');
+                const explosion = document.getElementById('explosion');
+                
+                // Hide asteroid and trail
+                asteroid.style.display = 'none';
+                asteroidTrail.style.display = 'none';
+                
+                // Show explosion
+                explosion.style.animation = 'explosion 1.5s forwards';
+                
+                // Play explosion sound
+                playSound('explosion');
+                
+                // Show impact alert after a short delay
+                setTimeout(() => {
+                    showGameAlert("IMPACT DETECTED", "The asteroid has struck Earth! Humanity's fate now depends on your strategy.", "ASSESS DAMAGE");
+                }, 1000);
+            }
+           
+            // Populate question options with random sets
             function populateQuestionOptions(asteroid) {
                 // Detection question
                 const detectionOptions = document.getElementById('detection-options');
                 detectionOptions.innerHTML = '';
-                questions.detection.options.forEach((option, index) => {
+                const detectionSet = questionSets.detection[Math.floor(Math.random() * questionSets.detection.length)];
+                detectionSet.options.forEach((option, index) => {
                     const button = document.createElement('button');
                     button.classList.add('option-btn');
                     button.textContent = option.text;
@@ -2035,7 +2148,8 @@
                 // Destruction question
                 const destructionOptions = document.getElementById('destruction-options');
                 destructionOptions.innerHTML = '';
-                questions.destruction.options.forEach((option, index) => {
+                const destructionSet = questionSets.destruction[Math.floor(Math.random() * questionSets.destruction.length)];
+                destructionSet.options.forEach((option, index) => {
                     const button = document.createElement('button');
                     button.classList.add('option-btn');
                     button.textContent = option.text;
@@ -2046,7 +2160,8 @@
                 // Safety question
                 const safetyOptions = document.getElementById('safety-options');
                 safetyOptions.innerHTML = '';
-                questions.safety.options.forEach((option, index) => {
+                const safetySet = questionSets.safety[Math.floor(Math.random() * questionSets.safety.length)];
+                safetySet.options.forEach((option, index) => {
                     const button = document.createElement('button');
                     button.classList.add('option-btn');
                     button.textContent = option.text;
@@ -2202,7 +2317,7 @@
                 window.location.href = 'index.html';
             });
            
-            // Sound Controls
+            // Sound Controls - Fixed mute functionality
             document.getElementById('music-toggle').addEventListener('click', function() {
                 playSound('button');
                 const music = document.getElementById('background-music');
@@ -2212,13 +2327,13 @@
                     music.pause();
                     icon.classList.remove('fa-volume-up');
                     icon.classList.add('fa-volume-mute');
+                    gameState.musicEnabled = false;
                 } else {
                     music.play();
                     icon.classList.remove('fa-volume-mute');
                     icon.classList.add('fa-volume-up');
+                    gameState.musicEnabled = true;
                 }
-               
-                gameState.musicEnabled = !gameState.musicEnabled;
             });
            
             document.getElementById('sfx-toggle').addEventListener('click', function() {
@@ -2228,19 +2343,19 @@
                 if (gameState.sfxEnabled) {
                     icon.classList.remove('fa-bell');
                     icon.classList.add('fa-bell-slash');
+                    gameState.sfxEnabled = false;
                 } else {
                     icon.classList.remove('fa-bell-slash');
                     icon.classList.add('fa-bell');
+                    gameState.sfxEnabled = true;
                 }
-               
-                gameState.sfxEnabled = !gameState.sfxEnabled;
             });
            
             // Add hover sounds to interactive elements
             const interactiveElements = document.querySelectorAll('button, .question-card, .chat-button, .sound-btn, .graph-btn, .option-btn');
             interactiveElements.forEach(element => {
                 element.addEventListener('mouseenter', () => {
-                    playSound('hover');
+                    if (gameState.sfxEnabled) playSound('hover');
                 });
             });
            
@@ -2268,7 +2383,7 @@
             });
 
             // Send message function
-            function sendMessage() {
+            async function sendMessage() {
                 const message = chatInput.value.trim();
                 if (message === '') return;
 
@@ -2280,12 +2395,114 @@
                 typingIndicator.style.display = 'block';
                 scrollToBottom();
 
-                // Simulate AI response after a delay
-                setTimeout(function() {
-                    typingIndicator.style.display = 'none';
-                    const aiResponse = generateAIResponse(message, gameState.selectedAsteroid);
+                try {
+                    // Get AI response from your server
+                    const aiResponse = await askAI(message, gameState);
                     addMessage(aiResponse, 'ai');
-                }, 1500);
+                } catch (error) {
+                    console.error('Error getting AI response:', error);
+                    addMessage("⚠️ Error connecting to AI server. Please try again.", 'ai');
+                } finally {
+                    typingIndicator.style.display = 'none';
+                }
+            }
+
+            // AI function that connects to your server
+            async function askAI(question, gameState) {
+                try {
+                    const totalSeconds = gameState.minutes * 60 + gameState.seconds;
+                    const timeLeft = `${gameState.minutes}:${gameState.seconds.toString().padStart(2, '0')}`;
+                    
+                    const res = await fetch("http://localhost:3000/ask", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ 
+                            question: `As a planetary defense AI assistant, my duty is to help save Earth from the approaching asteroid ${gameState.selectedAsteroid.name} (${gameState.selectedAsteroid.type}). 
+                            
+                            Current mission status:
+                            - Time until impact: ${timeLeft}
+                            - Population at risk: ${formatNumber(gameState.population)}
+                            - Defense resources: ${gameState.resources}%
+                            - Survival chance: ${gameState.successChance}%
+                            - Questions answered: ${gameState.answeredQuestions}/4
+                            - Correct answers: ${gameState.correctAnswers}
+                            
+                            Asteroid details: ${gameState.selectedAsteroid.description}
+                            
+                            User question: ${question}
+                            
+                            Please provide expert guidance on planetary defense, asteroid detection, deflection strategies, and survival protocols. Focus on helping protect Earth and clear any doubts.`
+                        }),
+                    });
+                    const data = await res.json();
+                    return data.answer || "I'm analyzing the asteroid data. Please try again.";
+                } catch (err) {
+                    console.error("Error connecting to server:", err);
+                    // Fallback to local responses if server is not available
+                    return generateLocalAIResponse(question, gameState);
+                }
+            }
+
+            // Generate local AI response as fallback
+            function generateLocalAIResponse(userMessage, gameState) {
+                const lowerMessage = userMessage.toLowerCase();
+                const asteroid = gameState.selectedAsteroid;
+                const timeLeft = `${gameState.minutes}:${gameState.seconds.toString().padStart(2, '0')}`;
+               
+                // Responses based on keywords in user message
+                if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+                    return `Greetings, Commander! I'm Arthurite, your planetary defense AI. We're tracking ${asteroid.name}, a ${asteroid.type} asteroid. With ${timeLeft} until potential impact, we need to act decisively to protect Earth. How can I assist?`;
+                } else if (lowerMessage.includes('help') || lowerMessage.includes('what should i do')) {
+                    return `I recommend focusing on the four critical decision points. We have ${timeLeft} until potential impact. ${asteroid.name} is a ${asteroid.type} asteroid, which affects optimal defense strategies. Check the survival chance indicator before making decisions.`;
+                } else if (lowerMessage.includes('time') || lowerMessage.includes('countdown')) {
+                    return `Impact estimated in ${timeLeft}. Time is critical! Remember: 1 minute = 1 day in this simulation. We must make the right decisions quickly.`;
+                } else if (lowerMessage.includes('detect') || lowerMessage.includes('track')) {
+                    return `For detecting ${asteroid.name}, consider its ${asteroid.type.split(' ')[0]}-type composition. This affects reflective properties and optimal detection methods. Radio telescopes with interferometry often provide the most accurate trajectory data.`;
+                } else if (lowerMessage.includes('destroy') || lowerMessage.includes('deflect')) {
+                    return `The ${asteroid.type} composition of ${asteroid.name} is crucial. For large asteroids like this, nuclear standoff explosions or multiple kinetic impactors tend to be most effective. Gravity tractors work better for smaller asteroids.`;
+                } else if (lowerMessage.includes('safe') || lowerMessage.includes('shelter')) {
+                    return "In case of impact, underground bunkers and opposite hemispheres offer the best protection. Coastal regions would be most affected by tsunamis. We currently have " + gameState.successChance + "% survival chance.";
+                } else if (lowerMessage.includes('population') || lowerMessage.includes('people')) {
+                    return `Current Earth population: ${formatNumber(gameState.population)}. Each decision affects this number. We've answered ${gameState.answeredQuestions}/4 questions with ${gameState.correctAnswers} correct so far.`;
+                } else if (lowerMessage.includes('resource') || lowerMessage.includes('supplies')) {
+                    return `We have ${gameState.resources}% of defense resources remaining. Choose answers carefully as incorrect decisions consume resources.`;
+                } else if (lowerMessage.includes('graph') || lowerMessage.includes('monitor')) {
+                    return "The monitoring graph shows real-time asteroid data. Distance is decreasing while velocity and threat level are increasing. Toggle between data sets for detailed analysis.";
+                } else if (lowerMessage.includes(asteroid.name.toLowerCase())) {
+                    return `${asteroid.name} is a ${asteroid.type} asteroid. ${asteroid.description} We have ${timeLeft} until potential impact.`;
+                } else {
+                    // Default responses if no keywords match
+                    const defaultResponses = [
+                        `As your planetary defense AI, I'm tracking ${asteroid.name} with ${timeLeft} until potential impact. We need to make strategic decisions to protect Earth.`,
+                        "I understand your concern. The asteroid threat requires immediate action. Which defense strategy are you considering?",
+                        "Based on current data, I recommend focusing on accurate detection first, then appropriate deflection strategies for maximum effectiveness.",
+                        `We have ${gameState.resources}% resources remaining and ${gameState.successChance}% survival chance. Time is critical - we must act decisively.`,
+                        "The situation is serious but manageable with proper strategy. Humanity has faced existential threats before and prevailed through cooperation and technology."
+                    ];
+                    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+                }
+            }
+
+            // Send warning message
+            function sendWarningMessage(gameState) {
+                const timeLeft = `${gameState.minutes}:${gameState.seconds.toString().padStart(2, '0')}`;
+                const warnings = [
+                    `WARNING: ${timeLeft} until potential impact! Asteroid ${gameState.selectedAsteroid.name} is approaching rapidly. Make defense decisions quickly.`,
+                    `ALERT: ${timeLeft} remaining! Survival chance at ${gameState.successChance}%. Continue with strategic defense measures.`,
+                    `URGENT: ${timeLeft} until impact! Population at risk: ${formatNumber(gameState.population)}. Focus on optimal defense strategies.`,
+                    `CRITICAL: ${timeLeft} left! Resources at ${gameState.resources}%. Time is running out - make precise decisions.`
+                ];
+                
+                const warning = warnings[Math.floor(Math.random() * warnings.length)];
+                
+                // Only show warning if chat is open
+                if (chatModal.style.display === 'flex') {
+                    addMessage(warning, 'ai');
+                } else {
+                    // Show notification badge if chat is closed
+                    notificationBadge.style.display = 'flex';
+                    notificationBadge.textContent = "!";
+                }
             }
 
             // Add message to chat
@@ -2301,44 +2518,6 @@
             // Scroll to bottom of chat
             function scrollToBottom() {
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-
-            // Generate AI response
-            function generateAIResponse(userMessage, asteroid) {
-                const lowerMessage = userMessage.toLowerCase();
-               
-                // Responses based on keywords in user message
-                if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-                    return `Greetings, Commander! We're tracking ${asteroid.name}, a ${asteroid.type} asteroid. The situation is critical. We need to make the right decisions to save humanity.`;
-                } else if (lowerMessage.includes('help') || lowerMessage.includes('what should i do')) {
-                    return `I recommend carefully considering all options for each question. ${asteroid.name} is a ${asteroid.type} asteroid, which affects how we should approach detection and deflection. Check the survival chance indicator before making your decision.`;
-                } else if (lowerMessage.includes('time') || lowerMessage.includes('countdown')) {
-                    return `Based on current trajectory, impact will occur in ${gameState.minutes} minutes, ${gameState.seconds} seconds. Time is of the essence! Remember: 1 minute = 1 day in this simulation.`;
-                } else if (lowerMessage.includes('detect') || lowerMessage.includes('track')) {
-                    return `For detecting ${asteroid.name}, we need to consider its composition. As a ${asteroid.type.split(' ')[0]}-type asteroid, it has specific reflective properties that affect which detection methods work best.`;
-                } else if (lowerMessage.includes('destroy') || lowerMessage.includes('deflect')) {
-                    return `The composition of ${asteroid.name} (${asteroid.type}) is crucial for determining the best deflection method. Some approaches work better on certain asteroid types than others.`;
-                } else if (lowerMessage.includes('safe') || lowerMessage.includes('shelter')) {
-                    return "In case of impact, safety depends on distance from the impact site, geological stability, and available resources. Underground bunkers and opposite hemispheres generally offer the best protection.";
-                } else if (lowerMessage.includes('population') || lowerMessage.includes('people')) {
-                    return `Current Earth population: ${formatNumber(gameState.population)}. Each decision will affect this number based on its effectiveness.`;
-                } else if (lowerMessage.includes('resource') || lowerMessage.includes('supplies')) {
-                    return `We have ${gameState.resources}% of defense resources remaining. Choose your answers carefully as resources are limited.`;
-                } else if (lowerMessage.includes('graph') || lowerMessage.includes('monitor')) {
-                    return "The monitoring graph shows real-time data about the asteroid's approach. You can toggle between different data sets to analyze the threat more effectively.";
-                } else if (lowerMessage.includes(asteroid.name.toLowerCase())) {
-                    return `${asteroid.name} is a ${asteroid.type} asteroid. ${asteroid.description}`;
-                } else {
-                    // Default responses if no keywords match
-                    const defaultResponses = [
-                        "I understand your concern. The asteroid threat requires immediate action. Which question are you working on?",
-                        "That's an important consideration. Let me access the planetary defense database for the latest information.",
-                        "Based on current data, I recommend focusing on accurate detection methods first, then appropriate deflection strategies.",
-                        "I'm designed to assist with asteroid threat scenarios. Could you provide more specific details about your query?",
-                        "The situation is critical but not hopeless. Humanity has faced existential threats before and prevailed through cooperation and technology."
-                    ];
-                    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
-                }
             }
 
             // Event listeners for sending messages
@@ -2377,6 +2556,9 @@
 
             // Initialize Monitoring Graph
             initMonitoringGraph();
+            
+            // Initial asteroid position
+            updateAsteroidPosition(gameState.minutes, gameState.seconds);
         }
 
         // Monitoring Graph Functionality
