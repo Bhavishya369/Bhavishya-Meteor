@@ -1708,44 +1708,43 @@
        
     </div>
 
-    <!-- Audio Elements -->
-    <audio id="background-music" loop>
-        <source src="https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3" type="audio/mpeg">
+            <!-- Audio Elements - WITH preload for better reliability -->
+    <audio id="background-music" loop preload="auto">
+        <source src="stimulation of asteroids/background music 23.mp3" type="audio/mpeg">
     </audio>
-    <audio id="loading-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-robot-voice-264.mp3" type="audio/mpeg">
+    <audio id="loading-sound" preload="auto">
+        <source src="stimulation of asteroids/loading.mp3" type="audio/mpeg">
     </audio>
-    <audio id="button-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+    <audio id="button-sound" preload="auto">
+        <source src="stimulation of asteroids/button,stimulate.mp3" type="audio/mpeg">
     </audio>
-    <audio id="casual-click-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" type="audio/mpeg">
+    <audio id="casual-click-sound" preload="auto">
+        <source src="stimulation of asteroids/casual click.mp3" type="audio/mpeg">
     </audio>
-    <audio id="chat-bot-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-robot-voice-264.mp3" type="audio/mpeg">
+    <audio id="chat-bot-sound" preload="auto">
+        <source src="stimulation of asteroids/chat bot.mp3" type="audio/mpeg">
     </audio>
-    <audio id="failure-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-warning-alarm-buzzer-985.mp3" type="audio/mpeg">
+    <audio id="failure-sound" preload="auto">
+        <source src="stimulation of asteroids/failure.mp3" type="audio/mpeg">
     </audio>
-    <audio id="hover-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-cool-interface-click-tone-2568.mp3" type="audio/mpeg">
+    <audio id="hover-sound" preload="auto">
+        <source src="stimulation of asteroids/hover on stimulation.mp3" type="audio/mpeg">
     </audio>
-    <audio id="individual-correct-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3" type="audio/mpeg">
+    <audio id="individual-correct-sound" preload="auto">
+        <source src="stimulation of asteroids/individual correct answer.mp3" type="audio/mpeg">
     </audio>
-    <audio id="individual-wrong-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" type="audio/mpeg">
+    <audio id="individual-wrong-sound" preload="auto">
+        <source src="stimulation of asteroids/individual wrong answer.mp3" type="audio/mpeg">
     </audio>
-    <audio id="time-tick-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-clock-ticking-close-1003.mp3" type="audio/mpeg">
+    <audio id="time-tick-sound" preload="auto">
+        <source src="stimulation of asteroids/time tick tick for 4sec.mp3" type="audio/mpeg">
     </audio>
-    <audio id="victory-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    <audio id="victory-sound" preload="auto">
+        <source src="stimulation of asteroids/victory.mp3" type="audio/mpeg">
     </audio>
-    <audio id="explosion-sound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-bomb-explosion-in-the-air-2801.mp3" type="audio/mpeg">
+    <audio id="explosion-sound" preload="auto">
+        <source src="stimulation of asteroids/explosion.mp3" type="audio/mpeg">
     </audio>
-
     <script>
         // Asteroid data
         const asteroids = [
@@ -1842,40 +1841,118 @@
             ]
         };
 
-        // Sound system
+                 // Sound system - IMPROVED VERSION
         let audioEnabled = false;
+        let audioContextInitialized = false;
         
         // Function to enable audio on first user interaction
         function enableAudio() {
             if (!audioEnabled) {
                 audioEnabled = true;
-                document.getElementById('loading-sound').volume = 0.5;
-                document.getElementById('loading-sound').play();
+                
+                // Initialize audio context if not already done
+                if (!audioContextInitialized) {
+                    initializeAudioContext();
+                }
+                
+                // Play loading sound
+                playSound('loading');
                 
                 // Hide the sound prompt
                 const soundPrompt = document.getElementById('sound-prompt');
                 if (soundPrompt) {
                     soundPrompt.style.display = 'none';
                 }
+                
+                console.log("Audio enabled successfully!");
             }
         }
         
-        // Add event listeners for user interaction
-        document.addEventListener('click', enableAudio, { once: true });
-        document.addEventListener('mousemove', enableAudio, { once: true });
-        document.addEventListener('keydown', enableAudio, { once: true });
-        document.addEventListener('touchstart', enableAudio, { once: true });
+        // Initialize audio context for better browser compatibility
+        function initializeAudioContext() {
+            try {
+                // Create audio context
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    const audioContext = new AudioContext();
+                    
+                    // Resume audio context on user interaction
+                    document.addEventListener('click', () => {
+                        if (audioContext.state === 'suspended') {
+                            audioContext.resume();
+                        }
+                    });
+                    
+                    audioContextInitialized = true;
+                }
+            } catch (error) {
+                console.log("Audio context not supported:", error);
+            }
+        }
         
-        // Play sound function
+        // Add event listeners with multiple approaches
+        function setupAudioListeners() {
+            // Method 1: Direct event listeners
+            document.addEventListener('click', enableAudio);
+            document.addEventListener('mousemove', enableAudio);
+            document.addEventListener('keydown', enableAudio);
+            document.addEventListener('touchstart', enableAudio);
+            
+            // Method 2: Specific button listener
+            const soundPrompt = document.getElementById('sound-prompt');
+            if (soundPrompt) {
+                soundPrompt.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    enableAudio();
+                });
+            }
+            
+            // Method 3: Try to enable audio after a short delay
+            setTimeout(() => {
+                if (!audioEnabled) {
+                    // Try to play a silent sound to unlock audio
+                    const silentSound = new Audio();
+                    silentSound.src = "data:audio/wav;base64,UklGRnoAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoAAAC";
+                    silentSound.volume = 0.001;
+                    silentSound.play().then(() => {
+                        console.log("Audio unlocked automatically");
+                    }).catch(() => {
+                        console.log("Audio requires user interaction");
+                    });
+                }
+            }, 1000);
+        }
+        
+        // Play sound function with improved error handling
         function playSound(soundName) {
             if (!audioEnabled) return;
             
-            const sound = document.getElementById(`${soundName}-sound`);
-            if (sound) {
-                sound.currentTime = 0;
-                sound.play();
+            try {
+                const sound = document.getElementById(`${soundName}-sound`);
+                if (sound) {
+                    // Reset and play
+                    sound.currentTime = 0;
+                    
+                    const playPromise = sound.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.log(`Could not play ${soundName}:`, error);
+                            // Try to enable audio again if play fails
+                            if (error.name === 'NotAllowedError') {
+                                audioEnabled = false;
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Error playing sound:", error);
             }
         }
+
+        // Initialize audio listeners when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setupAudioListeners();
+        });
 
         // Create binary rain effect
         const binaryRain = document.getElementById('binary-rain');
