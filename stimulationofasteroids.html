@@ -2490,7 +2490,7 @@ async function askAI(question, gameState) {
         const totalSeconds = gameState.minutes * 60 + gameState.seconds;
         const timeLeft = `${gameState.minutes}:${gameState.seconds.toString().padStart(2, '0')}`;
         
-        const res = await fetch("https://ai-server-1-w9ur.onrender.com/ask", {
+        const res = await fetch("https://bhavishya-meteor.onrender.com/ask", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
@@ -2881,3 +2881,4 @@ async function askAI(question, gameState) {
     </script>
 </body>
 </html>
+
