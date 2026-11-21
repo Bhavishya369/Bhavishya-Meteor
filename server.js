@@ -8,7 +8,8 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODELS = (process.env.GEMINI_MODELS || "gemini-2.5-flash,gemini-2.0-flash")
+const GEMINI_MODELS = (process.env.GEMINI_MODELS ||
+  "gemini-2.5-flash,gemini-3.8-flash,gemini-3.5-flash-lite")
   .split(",")
   .map(model => model.trim())
   .filter(Boolean);
@@ -223,7 +224,7 @@ Start with a brief time warning, then provide the complete answer:`;
     console.error("Gemini request failed:", error.message);
     res.status(statusCode).json({
       error: statusCode === 429
-        ? "All configured Gemini models are rate-limited or over quota."
+        ? "Gemini quota or rate limit was reached, and no fallback model succeeded."
         : "Unable to generate an AI response."
     });
   }
