@@ -46,6 +46,9 @@ async function generateGeminiText(prompt) {
     }
 
     let response;
+    let data;
+    const requestController = new AbortController();
+    const requestTimeout = setTimeout(() => requestController.abort(), 20000);
     try {
       response = await fetch(
         `https://generativelanguage.googleapis.com/v1/models/${encodeURIComponent(model)}:generateContent`,
@@ -57,24 +60,32 @@ async function generateGeminiText(prompt) {
           },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }]
-          })
+          }),
+          signal: requestController.signal
         }
       );
-    } catch (cause) {
-      lastError = new Error(`Gemini request failed for model ${model}.`, { cause });
-      lastError.statusCode = 502;
-      console.warn(`Gemini request failed for model ${model}.`);
-      continue;
-    }
-
-    let data;
-    try {
       data = await response.json();
     } catch (cause) {
-      lastError = new Error(`Gemini returned invalid JSON for model ${model}.`, { cause });
-      lastError.statusCode = 502;
-      console.warn(`Gemini returned invalid JSON for model ${model}.`);
+      const timedOut = requestController.signal.aborted;
+      lastError = new Error(
+        timedOut
+          ? `Gemini request timed out for model ${model}.`
+          : response
+            ? `Gemini returned invalid JSON for model ${model}.`
+            : `Gemini request failed for model ${model}.`,
+        { cause }
+      );
+      lastError.statusCode = timedOut ? 504 : 502;
+      if (timedOut) {
+        geminiModelCooldowns.set(model, {
+          until: Date.now() + 15000,
+          status: 503
+        });
+      }
+      console.warn(lastError.message);
       continue;
+    } finally {
+      clearTimeout(requestTimeout);
     }
 
     if (!response.ok) {
