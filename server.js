@@ -8,9 +8,125 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_MODELS = (process.env.GEMINI_MODELS || "gemini-2.5-flash,gemini-2.0-flash")
+  .split(",")
+  .map(model => model.trim())
+  .filter(Boolean);
+const geminiModelCooldowns = new Map();
 
-// 🔍 Debug (remove later if you want)
-console.log("Gemini key exists:", !!GEMINI_API_KEY);
+function getModelCooldownMs(response) {
+  const retryAfterSeconds = Number(response.headers.get("retry-after"));
+  if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+    return retryAfterSeconds * 1000;
+  }
+  if (response.status === 404) return 10 * 60 * 1000;
+  if (response.status === 503) return 15 * 1000;
+  return 60 * 1000;
+}
+
+async function generateGeminiText(prompt) {
+  if (!GEMINI_API_KEY) {
+    const error = new Error("Gemini API key is not configured.");
+    error.statusCode = 503;
+    throw error;
+  }
+  if (!GEMINI_MODELS.length) {
+    const error = new Error("No Gemini models are configured.");
+    error.statusCode = 503;
+    throw error;
+  }
+
+  let lastError = null;
+  for (const model of GEMINI_MODELS) {
+    const cooldown = geminiModelCooldowns.get(model);
+    if (cooldown && cooldown.until > Date.now()) {
+      console.info(`Skipping Gemini model ${model}; it is temporarily unavailable.`);
+      continue;
+    }
+
+    let response;
+    try {
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1/models/${encodeURIComponent(model)}:generateContent`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": GEMINI_API_KEY
+          },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          })
+        }
+      );
+    } catch (cause) {
+      lastError = new Error(`Gemini request failed for model ${model}.`, { cause });
+      lastError.statusCode = 502;
+      console.warn(`Gemini request failed for model ${model}.`);
+      continue;
+    }
+
+    let data;
+    try {
+      data = await response.json();
+    } catch (cause) {
+      lastError = new Error(`Gemini returned invalid JSON for model ${model}.`, { cause });
+      lastError.statusCode = 502;
+      console.warn(`Gemini returned invalid JSON for model ${model}.`);
+      continue;
+    }
+
+    if (!response.ok) {
+      lastError = new Error(`Gemini model ${model} returned status ${response.status}.`);
+      lastError.statusCode = response.status;
+      console.warn(`Gemini model ${model} returned status ${response.status}.`);
+      if ([404, 429, 503].includes(response.status)) {
+        geminiModelCooldowns.set(model, {
+          until: Date.now() + getModelCooldownMs(response),
+          status: response.status
+        });
+        continue;
+      }
+      break;
+    }
+
+    const answer = data?.candidates?.[0]?.content?.parts
+      ?.map(part => part.text || "")
+      .join("")
+      .trim();
+    if (!answer) {
+      lastError = new Error(`Gemini model ${model} returned no text.`);
+      lastError.statusCode = 502;
+      console.warn(`Gemini model ${model} returned no text.`);
+      continue;
+    }
+
+    geminiModelCooldowns.delete(model);
+    console.info(`Gemini generated a response with model ${model}.`);
+    return answer;
+  }
+
+  if (lastError) {
+    const activeCooldowns = GEMINI_MODELS
+      .map(model => geminiModelCooldowns.get(model))
+      .filter(cooldown => cooldown && cooldown.until > Date.now());
+    if (activeCooldowns.length === GEMINI_MODELS.length) {
+      lastError.statusCode = activeCooldowns.some(cooldown => cooldown.status === 429)
+        ? 429
+        : 503;
+    }
+    throw lastError;
+  }
+
+  const error = new Error("No configured Gemini model is currently available.");
+  const activeCooldowns = GEMINI_MODELS
+    .map(model => geminiModelCooldowns.get(model))
+    .filter(cooldown => cooldown && cooldown.until > Date.now());
+  error.statusCode = activeCooldowns.some(cooldown => cooldown.status === 429)
+    ? 429
+    : 503;
+  throw error;
+}
 
 // List of educational/asteroid-related topics
 const EDUCATIONAL_TOPICS = [
@@ -29,13 +145,23 @@ function isEducationalQuestion(question) {
 }
 
 app.post("/ask", async (req, res) => {
-  const question = req.body.question;
-  console.log("User asked:", question);
+  const question = req.body?.question;
+  if (typeof question !== "string" || !question.trim()) {
+    return res.status(400).json({ error: "A non-empty question is required." });
+  }
+  const isToroshiaRequest = /you are toroshia/i.test(question) &&
+    question.includes("<chat transcript part>");
+  console.info("AI request received.", {
+    type: isToroshiaRequest ? "Toroshia" : "general",
+    characters: question.length
+  });
 
   try {
     let prompt;
 
-    if (isEducationalQuestion(question)) {
+    if (isToroshiaRequest) {
+      prompt = question;
+    } else if (isEducationalQuestion(question)) {
       prompt = `You are Arthurite AI, a planetary defense assistant.
 
 RESPONSE GUIDELINES:
@@ -64,31 +190,7 @@ Now answer this question: ${question}
 Start with a brief time warning, then provide the complete answer:`;
     }
 
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": GEMINI_API_KEY
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: prompt }]
-            }
-          ]
-        })
-      }
-    );
-
-    console.log("Gemini response status:", response.status);
-
-    const data = await response.json();
-
-    let answer =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Processing your query... 🛰️ Systems are analyzing the request.";
+    let answer = await generateGeminiText(prompt);
 
     answer = answer
       .replace(/\*\*/g, "")
@@ -100,47 +202,29 @@ Start with a brief time warning, then provide the complete answer:`;
     const wordCount = answer.split(/\s+/).length;
 
     if (
-      wordCount < 50 ||
-      (answer.toLowerCase().includes("asteroid") &&
-        !question.toLowerCase().includes("asteroid"))
+      !isToroshiaRequest &&
+      (wordCount < 50 ||
+        (answer.toLowerCase().includes("asteroid") &&
+          !question.toLowerCase().includes("asteroid")))
     ) {
       const fallbackPrompt = `The user asked: "${question}". Please provide a direct, helpful answer to their specific question (75-150 words).`;
 
       try {
-        const fallbackResponse = await fetch(
-          "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-goog-api-key": GEMINI_API_KEY
-            },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [{ text: fallbackPrompt }]
-                }
-              ]
-            })
-          }
-        );
-
-        const fallbackData = await fallbackResponse.json();
-        answer =
-          fallbackData?.candidates?.[0]?.content?.parts?.[0]?.text ||
-          answer;
-      } catch {
-        // ignore fallback failure
+        answer = await generateGeminiText(fallbackPrompt);
+      } catch (fallbackError) {
+        console.error("Unable to generate enhanced Gemini response:", fallbackError.message);
       }
     }
 
     res.json({ answer, wordCount });
   } catch (error) {
-    console.error("Error talking to Gemini:", error);
-    res.json({
-      answer:
-        "Temporary system disruption. Continuing defense protocols. Please try again shortly. 🛡️",
-      wordCount: 20
+    const statusCode = Number.isInteger(error.statusCode) && error.statusCode >= 400 &&
+      error.statusCode < 600 ? error.statusCode : 502;
+    console.error("Gemini request failed:", error.message);
+    res.status(statusCode).json({
+      error: statusCode === 429
+        ? "All configured Gemini models are rate-limited or over quota."
+        : "Unable to generate an AI response."
     });
   }
 });
